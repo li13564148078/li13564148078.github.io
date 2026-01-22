@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多功能网页计算器</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            padding: 20px;
+        }
+        
+        .calculator-container {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background-color: rgba(0, 0, 0, 0.2);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+        
+        .calculator-content {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        
+        .calculator {
+            flex: 1;
+            min-width: 350px;
+            padding: 25px;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .history-panel {
+            flex: 1;
+            min-width: 300px;
+            background-color: rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .display {
+            background-color: #1e1e2e;
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: right;
+            overflow: hidden;
+        }
+        
+        .calculation {
+            font-size: 1.2rem;
+            min-height: 28px;
+            color: #a5a5c7;
+            word-wrap: break-word;
+        }
+        
+        .result {
+            font-size: 2.5rem;
+            font-weight: bold;
+            min-height: 60px;
+            word-wrap: break-word;
+        }
+        
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+        
+        .btn {
+            border: none;
+            border-radius: 10px;
+            padding: 20px 0;
+            font-size: 1.3rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-number {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-number:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .btn-operator {
+            background-color: #4d5dfb;
+            color: white;
+        }
+        
+        .btn-operator:hover {
+            background-color: #3a4af8;
+        }
+        
+        .btn-clear {
+            background-color: #ff4757;
+            color: white;
+        }
+        
+        .btn-clear:hover {
+            background-color: #ff3742;
+        }
+        
+        .btn-equals {
+            background-color: #0be881;
+            color: #333;
+        }
+        
+        .btn-equals:hover {
+            background-color: #0ad873;
+        }
+        
+        .btn-zero {
+            grid-column: span 2;
+        }
+        
+        .history-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .history-list {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 400px;
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .history-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        
+        .history-calculation {
+            color: #777;
+            font-size: 0.9rem;
+        }
+        
+        .history-result {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .history-empty {
+            text-align: center;
+            color: #aaa;
+            padding: 30px 0;
+            font-style: italic;
+        }
+        
+        .keyboard-hint {
+            margin-top: 20px;
+            font-size: 0.85rem;
+            color: #666;
+            text-align: center;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 15px;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.1);
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .calculator-content {
+                flex-direction: column;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .result {
+                font-size: 2rem;
+            }
+            
+            .btn {
+                padding: 18px 0;
+                font-size: 1.2rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .calculator, .history-panel {
+                min-width: 100%;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .result {
+                font-size: 1.8rem;
+            }
+            
+            .btn {
+                padding: 15px 0;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <div class="header">
+            <h1><i class="fas fa-calculator"></i> 多功能网页计算器</h1>
+            <p>支持基本运算、高级功能、键盘操作和计算历史记录</p>
+        </div>
+        
+        <div class="calculator-content">
+            <div class="calculator">
+                <div class="display">
+                    <div class="calculation" id="calculation"></div>
+                    <div class="result" id="result">0</div>
+                </div>
+                
+                <div class="buttons-grid">
+                    <button class="btn btn-clear" data-action="clear">C</button>
+                    <button class="btn btn-clear" data-action="clear-entry">CE</button>
+                    <button class="btn btn-operator" data-action="backspace"><i class="fas fa-backspace"></i></button>
+                    <button class="btn btn-operator" data-action="/">÷</button>
+                    
+                    <button class="btn btn-number" data-number="7">7</button>
+                    <button class="btn btn-number" data-number="8">8</button>
+                    <button class="btn btn-number" data-number="9">9</button>
+                    <button class="btn btn-operator" data-action="*">×</button>
+                    
+                    <button class="btn btn-number" data-number="4">4</button>
+                    <button class="btn btn-number" data-number="5">5</button>
+                    <button class="btn btn-number" data-number="6">6</button>
+                    <button class="btn btn-operator" data-action="-">−</button>
+                    
+                    <button class="btn btn-number" data-number="1">1</button>
+                    <button class="btn btn-number" data-number="2">2</button>
+                    <button class="btn btn-number" data-number="3">3</button>
+                    <button class="btn btn-operator" data-action="+">+</button>
+                    
+                    <button class="btn btn-number btn-zero" data-number="0">0</button>
+                    <button class="btn btn-number" data-action=".">.</button>
+                    <button class="btn btn-equals" data-action="equals">=</button>
+                </div>
+                
+                <div class="keyboard-hint">
+                    <p><i class="fas fa-keyboard"></i> 提示：您可以使用键盘输入数字和操作符 (0-9, +, -, *, /, Enter, Escape)</p>
+                </div>
+            </div>
+            
+            <div class="history-panel">
+                <div class="history-title">
+                    <span><i class="fas fa-history"></i> 计算历史</span>
+                    <button class="btn btn-clear" id="clear-history" style="padding: 8px 12px; font-size: 0.9rem;">清空历史</button>
+                </div>
+                
+                <div class="history-list" id="history-list">
+                    <div class="history-empty">暂无计算历史</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>网页计算器 &copy; 2026 | 由lcx使用HTML构建</p>
+        </div>
+    </div>
+
+    <script>
+        // 计算器状态
+        let currentOperand = '0';
+        let previousOperand = '';
+        let operation = null;
+        let resetScreen = false;
+        let calculationHistory = [];
+        
+        // DOM元素
+        const resultElement = document.getElementById('result');
+        const calculationElement = document.getElementById('calculation');
+        const historyListElement = document.getElementById('history-list');
+        const clearHistoryButton = document.getElementById('clear-history');
+        
+        // 更新显示
+        function updateDisplay() {
+            resultElement.textContent = currentOperand;
+            calculationElement.textContent = previousOperand + (operation ? ` ${getOperationSymbol(operation)}` : '');
+        }
+        
+        // 获取操作符符号
+        function getOperationSymbol(op) {
+            switch(op) {
+                case '+': return '+';
+                case '-': return '−';
+                case '*': return '×';
+                case '/': return '÷';
+                default: return op;
+            }
+        }
+        
+        // 添加数字
+        function appendNumber(number) {
+            if (currentOperand === '0' || resetScreen) {
+                currentOperand = number;
+                resetScreen = false;
+            } else {
+                // 防止输入多个小数点
+                if (number === '.' && currentOperand.includes('.')) return;
+                currentOperand += number;
+            }
+            updateDisplay();
+        }
+        
+        // 选择操作符
+        function chooseOperation(op) {
+            if (currentOperand === '') return;
+            
+            if (previousOperand !== '') {
+                compute();
+            }
+            
+            operation = op;
+            previousOperand = currentOperand;
+            resetScreen = true;
+            updateDisplay();
+        }
+        
+        // 计算结果
+        function compute() {
+            let computation;
+            const prev = parseFloat(previousOperand);
+            const current = parseFloat(currentOperand);
+            
+            if (isNaN(prev) || isNaN(current)) return;
+            
+            switch(operation) {
+                case '+':
+                    computation = prev + current;
+                    break;
+                case '-':
+                    computation = prev - current;
+                    break;
+                case '*':
+                    computation = prev * current;
+                    break;
+                case '/':
+                    if (current === 0) {
+                        alert("错误：不能除以零！");
+                        clear();
+                        return;
+                    }
+                    computation = prev / current;
+                    break;
+                default:
+                    return;
+            }
+            
+            // 保存计算历史
+            const calculation = `${previousOperand} ${getOperationSymbol(operation)} ${currentOperand} = ${computation}`;
+            addToHistory(calculation);
+            
+            // 更新当前操作数
+            currentOperand = computation.toString();
+            operation = null;
+            previousOperand = '';
+            resetScreen = true;
+            updateDisplay();
+        }
+        
+        // 清除计算器
+        function clear() {
+            currentOperand = '0';
+            previousOperand = '';
+            operation = null;
+            updateDisplay();
+        }
+        
+        // 清除当前输入
+        function clearEntry() {
+            currentOperand = '0';
+            updateDisplay();
+        }
+        
+        // 删除最后一个字符
+        function deleteLast() {
+            if (currentOperand.length === 1) {
+                currentOperand = '0';
+            } else {
+                currentOperand = currentOperand.slice(0, -1);
+            }
+            updateDisplay();
+        }
+        
+        // 添加计算历史
+        function addToHistory(calculation) {
+            calculationHistory.unshift({
+                id: Date.now(),
+                calculation: calculation
+            });
+            
+            // 只保留最近20条历史记录
+            if (calculationHistory.length > 20) {
+                calculationHistory = calculationHistory.slice(0, 20);
+            }
+            
+            updateHistoryDisplay();
+        }
+        
+        // 更新历史记录显示
+        function updateHistoryDisplay() {
+            if (calculationHistory.length === 0) {
+                historyListElement.innerHTML = '<div class="history-empty">暂无计算历史</div>';
+                return;
+            }
+            
+            historyListElement.innerHTML = calculationHistory.map(item => `
+                <div class="history-item">
+                    <div class="history-calculation">${item.calculation}</div>
+                </div>
+            `).join('');
+        }
+        
+        // 清空历史记录
+        function clearHistory() {
+            calculationHistory = [];
+            updateHistoryDisplay();
+        }
+        
+        // 按钮点击事件处理
+        document.querySelectorAll('.btn').forEach(button => {
+            button.addEventListener('click', () => {
+                // 数字按钮
+                if (button.hasAttribute('data-number')) {
+                    appendNumber(button.getAttribute('data-number'));
+                }
+                
+                // 操作符按钮
+                if (button.hasAttribute('data-action')) {
+                    const action = button.getAttribute('data-action');
+                    
+                    switch(action) {
+                        case 'clear':
+                            clear();
+                            break;
+                        case 'clear-entry':
+                            clearEntry();
+                            break;
+                        case 'backspace':
+                            deleteLast();
+                            break;
+                        case 'equals':
+                            compute();
+                            break;
+                        case '+':
+                        case '-':
+                        case '*':
+                        case '/':
+                            chooseOperation(action);
+                            break;
+                        case '.':
+                            appendNumber('.');
+                            break;
+                    }
+                }
+            });
+        });
+        
+        // 清空历史按钮事件
+        clearHistoryButton.addEventListener('click', clearHistory);
+        
+        // 键盘事件处理
+        document.addEventListener('keydown', event => {
+            // 数字键
+            if (event.key >= '0' && event.key <= '9') {
+                appendNumber(event.key);
+            }
+            
+            // 小数点
+            if (event.key === '.') {
+                appendNumber('.');
+            }
+            
+            // 操作符
+            if (['+', '-', '*', '/'].includes(event.key)) {
+                chooseOperation(event.key);
+            }
+            
+            // 等号或回车
+            if (event.key === '=' || event.key === 'Enter') {
+                event.preventDefault();
+                compute();
+            }
+            
+            // 退格键
+            if (event.key === 'Backspace') {
+                deleteLast();
+            }
+            
+            // Escape键
+            if (event.key === 'Escape') {
+                clear();
+            }
+            
+            // 删除键
+            if (event.key === 'Delete') {
+                clearEntry();
+            }
+        });
+        
+        // 初始化显示
+        updateDisplay();
+        updateHistoryDisplay();
+        
+        // 添加一些示例计算历史
+        setTimeout(() => {
+            addToHistory("12 × 5 = 60");
+            addToHistory("100 ÷ 4 = 25");
+            addToHistory("7.5 + 2.5 = 10");
+        }, 500);
+    </script>
+</body>
+</html>

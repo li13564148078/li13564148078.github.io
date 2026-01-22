@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026新年祝福</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #ff3366 0%, #ff9933 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            height: 600px;
+            position: relative;
+            perspective: 1000px;
+        }
+        
+        .page {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.8s ease, opacity 0.8s ease;
+            backface-visibility: hidden;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateX(100%) rotateY(20deg);
+        }
+        
+        .page.active {
+            opacity: 1;
+            transform: translateX(0) rotateY(0);
+            z-index: 10;
+        }
+        
+        .page.previous {
+            opacity: 0;
+            transform: translateX(-100%) rotateY(-20deg);
+            z-index: 1;
+        }
+        
+        .page-title {
+            color: #ff3366;
+            font-size: 3.2rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+            display: inline-block;
+        }
+        
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 10%;
+            width: 80%;
+            height: 3px;
+            background: linear-gradient(to right, transparent, #ff9933, transparent);
+        }
+        
+        .page-content {
+            font-size: 1.4rem;
+            line-height: 1.8;
+            color: #333;
+            margin-bottom: 30px;
+            max-width: 90%;
+        }
+        
+        .highlight {
+            color: #ff3366;
+            font-weight: bold;
+        }
+        
+        .year {
+            font-size: 6rem;
+            font-weight: bold;
+            color: #ff3366;
+            text-shadow: 3px 3px 0 #ff9933;
+            margin: 20px 0;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .continue-btn {
+            background: linear-gradient(to right, #ff3366, #ff9933);
+            color: white;
+            border: none;
+            padding: 18px 45px;
+            font-size: 1.4rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 51, 102, 0.4);
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-top: 20px;
+        }
+        
+        .continue-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(255, 51, 102, 0.6);
+        }
+        
+        .continue-btn:active {
+            transform: translateY(0);
+        }
+        
+        .firework {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 5;
+        }
+        
+        .qrcode-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0 30px;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+        
+        .qrcode-btn {
+            background: linear-gradient(to right, #ff3366, #ff9933);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 51, 102, 0.4);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 180px;
+            justify-content: center;
+        }
+        
+        .qrcode-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 51, 102, 0.6);
+        }
+        
+        .qrcode-fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .qrcode-fullscreen.active {
+            display: flex;
+            opacity: 1;
+        }
+        
+        .qrcode-image {
+            width: 300px;
+            height: 300px;
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transform: scale(0.8);
+            transition: transform 0.5s ease;
+        }
+        
+        .qrcode-fullscreen.active .qrcode-image {
+            transform: scale(1);
+        }
+        
+        .qrcode-close {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            color: white;
+            font-size: 2.5rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .qrcode-close:hover {
+            transform: rotate(90deg);
+        }
+        
+        .qrcode-title {
+            color: white;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .container {
+                height: 550px;
+            }
+            
+            .page-title {
+                font-size: 2.5rem;
+            }
+            
+            .year {
+                font-size: 4.5rem;
+            }
+            
+            .page-content {
+                font-size: 1.2rem;
+                margin-bottom: 20px;
+            }
+            
+            .continue-btn {
+                padding: 15px 35px;
+                font-size: 1.2rem;
+            }
+            
+            .qrcode-buttons {
+                gap: 15px;
+                margin: 15px 0 20px;
+            }
+            
+            .qrcode-btn {
+                padding: 12px 20px;
+                font-size: 1rem;
+                min-width: 150px;
+            }
+            
+            .qrcode-image {
+                width: 250px;
+                height: 250px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                height: 500px;
+            }
+            
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .year {
+                font-size: 3.5rem;
+            }
+            
+            .page {
+                padding: 30px 15px;
+            }
+            
+            .qrcode-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .qrcode-btn {
+                width: 80%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 第1页 -->
+        <div class="page active" id="page1">
+            <h1 class="page-title">2026新年祝福</h1>
+            <div class="page-content">
+                在这辞旧迎新的美好时刻，<br>
+                送上我最诚挚的祝福。<br>
+                愿<span class="highlight">幸福</span>与<span class="highlight">快乐</span>永远陪伴您，<br>
+                愿<span class="highlight">健康</span>与<span class="highlight">平安</span>与您同行。
+            </div>
+            <div class="year">2026</div>
+            <button class="continue-btn" onclick="nextPage()">开启祝福 <i class="fas fa-gift"></i></button>
+        </div>
+        
+        <!-- 第2页 -->
+        <div class="page" id="page2">
+            <h1 class="page-title">新年新气象</h1>
+            <div class="page-content">
+                愿新的一年里，<br>
+                您的每一天都充满<span class="highlight">阳光</span>和<span class="highlight">欢笑</span>，<br>
+                每一个梦想都<span class="highlight">开花结果</span>，<br>
+                每一次努力都<span class="highlight">收获满满</span>。
+            </div>
+            <div class="year">
+                <i class="fas fa-star" style="color: #ff9933;"></i>
+                <i class="fas fa-star" style="color: #ff3366;"></i>
+                <i class="fas fa-star" style="color: #ff9933;"></i>
+            </div>
+            <button class="continue-btn" onclick="nextPage()">继续祝福 <i class="fas fa-arrow-right"></i></button>
+        </div>
+        
+        <!-- 第3页 -->
+        <div class="page" id="page3">
+            <h1 class="page-title">福气满满</h1>
+            <div class="page-content">
+                愿<span class="highlight">财富</span>如春雨般滋润您的生活，<br>
+                愿<span class="highlight">事业</span>如夏花般绚烂绽放，<br>
+                愿<span class="highlight">爱情</span>如秋实般甜蜜丰收，<br>
+                愿<span class="highlight">家庭</span>如冬阳般温暖和睦。
+            </div>
+            <div class="year">
+                <i class="fas fa-heart" style="color: #ff3366;"></i>
+            </div>
+            <button class="continue-btn" onclick="nextPage()">继续祝福 <i class="fas fa-arrow-right"></i></button>
+        </div>
+        
+        <!-- 第4页 -->
+        <div class="page" id="page4">
+            <h1 class="page-title">扫码送祝福</h1>
+            <div class="page-content">
+                长按识别二维码，<br>
+                接收2026年的特别祝福，<br>
+                愿好运与您相伴一整年！
+            </div>
+            
+            <div class="qrcode-buttons">
+                <button class="qrcode-btn" onclick="showQRCode('wechat')">
+                    <i class="fab fa-weixin"></i> 微信祝福
+                </button>
+                <button class="qrcode-btn" onclick="showQRCode('alipay')">
+                    <i class="fas fa-money-bill-wave"></i> 支付宝祝福
+                </button>
+            </div>
+            
+            <button class="continue-btn" onclick="restartPages()">重新开始 <i class="fas fa-redo"></i></button>
+        </div>
+    </div>
+    
+    <!-- 全屏二维码显示 -->
+    <div class="qrcode-fullscreen" id="qrcodeFullscreen">
+        <div class="qrcode-close" onclick="hideQRCode()">
+            <i class="fas fa-times"></i>
+        </div>
+        <div>
+            <h2 class="qrcode-title" id="qrcodeTitle">微信祝福</h2>
+            <div class="qrcode-image" id="qrcodeImage">
+                <!-- 二维码将通过JavaScript动态生成 -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentPage = 1;
+        const totalPages = 4;
+        
+        // 下一页函数
+        function nextPage() {
+            if (currentPage >= totalPages) return;
+            
+            const currentPageElement = document.getElementById(`page${currentPage}`);
+            const nextPageElement = document.getElementById(`page${currentPage + 1}`);
+            
+            // 添加烟花效果
+            createFireworks();
+            
+            // 页面切换动画
+            currentPageElement.classList.remove('active');
+            currentPageElement.classList.add('previous');
+            
+            setTimeout(() => {
+                nextPageElement.classList.remove('previous');
+                nextPageElement.classList.add('active');
+                currentPage++;
+            }, 300);
+        }
+        
+        // 重新开始
+        function restartPages() {
+            const allPages = document.querySelectorAll('.page');
+            allPages.forEach(page => {
+                page.classList.remove('active', 'previous');
+            });
+            
+            document.getElementById('page1').classList.add('active');
+            currentPage = 1;
+            
+            // 添加烟花效果
+            createFireworks();
+        }
+        
+        // 显示二维码
+        function showQRCode(type) {
+            const fullscreen = document.getElementById('qrcodeFullscreen');
+            const qrcodeImage = document.getElementById('qrcodeImage');
+            const qrcodeTitle = document.getElementById('qrcodeTitle');
+            
+            // 清空之前的二维码
+            qrcodeImage.innerHTML = '';
+            
+            // 设置标题
+            if (type === 'wechat') {
+                qrcodeTitle.textContent = '微信祝福二维码';
+                // 创建模拟微信二维码
+                qrcodeImage.innerHTML = createQRCodeSVG('微信', '#07C160');
+            } else {
+                qrcodeTitle.textContent = '支付宝祝福二维码';
+                // 创建模拟支付宝二维码
+                qrcodeImage.innerHTML = createQRCodeSVG('支付宝', '#1677FF');
+            }
+            
+            // 显示全屏二维码
+            fullscreen.classList.add('active');
+        }
+        
+        // 隐藏二维码
+        function hideQRCode() {
+            const fullscreen = document.getElementById('qrcodeFullscreen');
+            fullscreen.classList.remove('active');
+        }
+        
+        // 创建模拟二维码SVG
+        function createQRCodeSVG(platform, color) {
+            // 这是一个模拟二维码的SVG，实际项目中应使用真实的二维码生成库
+            return `
+                <svg width="100%" height="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="100" height="100" fill="white"/>
+                    <rect x="10" y="10" width="80" height="80" fill="${color}" opacity="0.1"/>
+                    
+                    <!-- 模拟二维码图案 -->
+                    <rect x="20" y="20" width="60" height="60" fill="${color}" opacity="0.2"/>
+                    
+                    <!-- 定位标记 -->
+                    <rect x="25" y="25" width="10" height="10" fill="${color}"/>
+                    <rect x="65" y="25" width="10" height="10" fill="${color}"/>
+                    <rect x="25" y="65" width="10" height="10" fill="${color}"/>
+                    
+                    <!-- 中心图标 -->
+                    <text x="50" y="50" text-anchor="middle" dy="0.3em" font-size="8" fill="${color}" font-weight="bold">${platform}</text>
+                    
+                    <!-- 随机点状图案模拟二维码 -->
+                    <g opacity="0.8">
+                        ${generateRandomDots(30, 35, 65, 35, 65, color)}
+                    </g>
+                </svg>
+            `;
+        }
+        
+        // 生成随机点
+        function generateRandomDots(count, minX, maxX, minY, maxY, color) {
+            let dots = '';
+            for (let i = 0; i < count; i++) {
+                const x = Math.floor(Math.random() * (maxX - minX)) + minX;
+                const y = Math.floor(Math.random() * (maxY - minY)) + minY;
+                const size = Math.random() * 2 + 1;
+                dots += `<rect x="${x}" y="${y}" width="${size}" height="${size}" fill="${color}"/>`;
+            }
+            return dots;
+        }
+        
+        // 创建烟花效果
+        function createFireworks() {
+            const colors = ['#ff3366', '#ff9933', '#ffcc00', '#33ccff', '#9966ff'];
+            
+            for (let i = 0; i < 20; i++) {
+                const firework = document.createElement('div');
+                firework.classList.add('firework');
+                
+                // 随机位置
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                firework.style.left = `${posX}%`;
+                firework.style.top = `${posY}%`;
+                
+                // 随机颜色
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                firework.style.backgroundColor = color;
+                
+                document.body.appendChild(firework);
+                
+                // 烟花动画
+                const size = Math.random() * 10 + 5;
+                const duration = Math.random() * 1 + 0.5;
+                
+                firework.animate([
+                    { transform: 'scale(0)', opacity: 1 },
+                    { transform: `scale(${size})`, opacity: 0 }
+                ], {
+                    duration: duration * 1000,
+                    easing: 'ease-out'
+                });
+                
+                // 移除元素
+                setTimeout(() => {
+                    firework.remove();
+                }, duration * 1000);
+            }
+        }
+        
+        // 点击全屏区域也可关闭二维码
+        document.getElementById('qrcodeFullscreen').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideQRCode();
+            }
+        });
+        
+        // 初始加载时创建一些烟花
+        window.addEventListener('load', () => {
+            setTimeout(createFireworks, 500);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>秒表</title>
+    <style>
+        :root {
+            --primary: #00f0ff;
+            --secondary: #7b2cbf;
+            --dark: #0a0a1a;
+            --light: #e2f1f8;
+            --accent: #ff2d75;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Orbitron', 'Arial', sans-serif;
+        }
+        
+        @font-face {
+            font-family: 'Orbitron';
+            src: url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: var(--dark);
+            color: var(--light);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(0, 240, 255, 0.1) 0%, transparent 30%),
+                radial-gradient(circle at 80% 70%, rgba(123, 44, 191, 0.1) 0%, transparent 30%);
+            z-index: -1;
+        }
+        
+        .tech-container {
+            width: 90%;
+            max-width: 500px;
+            background: rgba(10, 10, 26, 0.8);
+            border-radius: 20px;
+            box-shadow: 
+                0 0 20px rgba(0, 240, 255, 0.3),
+                0 0 40px rgba(123, 44, 191, 0.2);
+            border: 1px solid rgba(0, 240, 255, 0.1);
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        
+        .tech-container::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                transparent,
+                transparent,
+                transparent,
+                rgba(0, 240, 255, 0.1)
+            );
+            transform: rotate(30deg);
+            animation: shine 6s infinite linear;
+            z-index: -1;
+        }
+        
+        @keyframes shine {
+            0% { transform: rotate(30deg) translate(-30%, -30%); }
+            100% { transform: rotate(30deg) translate(30%, 30%); }
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 700;
+            font-size: 2.2rem;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+            letter-spacing: 2px;
+        }
+        
+        .time-display {
+            font-size: 3.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 30px 0;
+            font-family: 'Orbitron', monospace;
+            color: var(--primary);
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+            position: relative;
+        }
+        
+        .time-display::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--primary), transparent);
+            box-shadow: 0 0 10px var(--primary);
+        }
+        
+        .milliseconds {
+            font-size: 1.8rem;
+            color: var(--accent);
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 35px 0;
+        }
+        
+        .tech-btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            color: white;
+            min-width: 120px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .tech-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            z-index: -1;
+            transition: all 0.3s;
+        }
+        
+        .tech-btn:hover::before {
+            filter: brightness(1.2);
+            transform: scale(1.05);
+        }
+        
+        .tech-btn:active {
+            transform: translateY(2px);
+        }
+        
+        .tech-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        .tech-btn:disabled::before {
+            filter: grayscale(0.5);
+        }
+        
+        #startBtn::before {
+            background: linear-gradient(45deg, #00b09b, #96c93d);
+        }
+        
+        #pauseBtn::before {
+            background: linear-gradient(45deg, #ff8a00, #e52e71);
+        }
+        
+        #resetBtn::before {
+            background: linear-gradient(45deg, #8e2de2, #4a00e0);
+        }
+        
+        #lapBtn::before {
+            background: linear-gradient(45deg, #00c6ff, #0072ff);
+        }
+        
+        .laps-container {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 25px;
+            border-top: 1px solid rgba(0, 240, 255, 0.2);
+            padding-top: 15px;
+        }
+        
+        .laps-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 5px;
+            color: var(--primary);
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+        }
+        
+        .lap-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 5px;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.05);
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        
+        .lap-item:hover {
+            background: rgba(0, 240, 255, 0.05);
+        }
+        
+        .lap-number {
+            color: var(--light);
+            opacity: 0.7;
+        }
+        
+        .lap-time {
+            color: var(--primary);
+            font-family: 'Orbitron', monospace;
+        }
+        
+        .lap-diff {
+            color: var(--accent);
+            font-family: 'Orbitron', monospace;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(var(--primary), var(--secondary));
+            border-radius: 3px;
+        }
+        
+        @media (max-width: 600px) {
+            .time-display {
+                font-size: 2.8rem;
+            }
+            
+            .milliseconds {
+                font-size: 1.5rem;
+            }
+            
+            .tech-btn {
+                padding: 12px 20px;
+                min-width: 100px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .tech-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="tech-container">
+        <h1>秒表</h1>
+        
+        <div class="time-display">
+            <span id="minutes">00</span>:<span id="seconds">00</span>:<span id="milliseconds" class="milliseconds">00</span>
+        </div>
+        
+        <div class="controls">
+            <button class="tech-btn" id="startBtn">开始</button>
+            <button class="tech-btn" id="pauseBtn" disabled>暂停</button>
+            <button class="tech-btn" id="resetBtn" disabled>重置</button>
+            <button class="tech-btn" id="lapBtn" disabled>计次</button>
+        </div>
+        
+        <div class="laps-container">
+            <div class="laps-header">
+                <span>计次</span>
+                <span>时间</span>
+                <span>间隔</span>
+            </div>
+            <div id="lapsList">
+                <!-- 计次记录将在这里显示 -->
+            </div>
+        </div>
+        
+        <div class="footer">
+            Developed by 李宸熙 @DragonXi Tech
+        </div>
+    </div>
+
+    <script>
+        // 初始化变量
+        let startTime = 0;
+        let elapsedTime = 0;
+        let isRunning = false;
+        let animationFrameId = null;
+        let laps = [];
+        let lastLapTime = 0;
+        
+        // 获取DOM元素
+        const minutesElement = document.getElementById('minutes');
+        const secondsElement = document.getElementById('seconds');
+        const millisecondsElement = document.getElementById('milliseconds');
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const lapBtn = document.getElementById('lapBtn');
+        const lapsList = document.getElementById('lapsList');
+        
+        // 格式化时间显示
+        function formatTime(time) {
+            return time < 10 ? `0${time}` : time;
+        }
+        
+        // 更新显示时间 - 使用requestAnimationFrame实现流畅动画
+        function updateDisplay() {
+            const currentTime = Date.now() - startTime + elapsedTime;
+            const minutes = Math.floor(currentTime / 60000);
+            const seconds = Math.floor((currentTime % 60000) / 1000);
+            const milliseconds = Math.floor((currentTime % 1000) / 10);
+            
+            minutesElement.textContent = formatTime(minutes);
+            secondsElement.textContent = formatTime(seconds);
+            millisecondsElement.textContent = formatTime(milliseconds);
+            
+            if (isRunning) {
+                animationFrameId = requestAnimationFrame(updateDisplay);
+            }
+        }
+        
+        // 开始计时
+        function startTimer() {
+            if (!isRunning) {
+                isRunning = true;
+                startTime = Date.now() - elapsedTime;
+                updateDisplay();
+                
+                startBtn.disabled = true;
+                pauseBtn.disabled = false;
+                resetBtn.disabled = false;
+                lapBtn.disabled = false;
+                
+                startBtn.textContent = '运行中';
+            }
+        }
+        
+        // 暂停计时
+        function pauseTimer() {
+            if (isRunning) {
+                isRunning = false;
+                elapsedTime = Date.now() - startTime;
+                cancelAnimationFrame(animationFrameId);
+                
+                startBtn.disabled = false;
+                pauseBtn.disabled = true;
+                
+                startBtn.textContent = '继续';
+            }
+        }
+        
+        // 重置计时
+        function resetTimer() {
+            isRunning = false;
+            startTime = 0;
+            elapsedTime = 0;
+            laps = [];
+            lastLapTime = 0;
+            
+            minutesElement.textContent = '00';
+            secondsElement.textContent = '00';
+            millisecondsElement.textContent = '00';
+            
+            lapsList.innerHTML = '';
+            
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            resetBtn.disabled = true;
+            lapBtn.disabled = true;
+            
+            startBtn.textContent = '开始';
+        }
+        
+        // 记录计次
+        function recordLap() {
+            if (isRunning) {
+                const currentTime = Date.now() - startTime + elapsedTime;
+                const lapTime = currentTime;
+                const lapDifference = lastLapTime === 0 ? lapTime : lapTime - lastLapTime;
+                lastLapTime = lapTime;
+                
+                laps.unshift({
+                    number: laps.length + 1,
+                    time: lapTime,
+                    difference: lapDifference
+                });
+                
+                updateLapsList();
+            }
+        }
+        
+        // 更新计次列表
+        function updateLapsList() {
+            lapsList.innerHTML = '';
+            
+            laps.forEach(lap => {
+                const lapItem = document.createElement('div');
+                lapItem.className = 'lap-item';
+                
+                const minutes = Math.floor(lap.time / 60000);
+                const seconds = Math.floor((lap.time % 60000) / 1000);
+                const milliseconds = Math.floor((lap.time % 1000) / 10);
+                
+                const diffMinutes = Math.floor(lap.difference / 60000);
+                const diffSeconds = Math.floor((lap.difference % 60000) / 1000);
+                const diffMilliseconds = Math.floor((lap.difference % 1000) / 10);
+                
+                lapItem.innerHTML = `
+                    <span class="lap-number">${formatTime(lap.number)}</span>
+                    <span class="lap-time">${formatTime(minutes)}:${formatTime(seconds)}:${formatTime(milliseconds)}</span>
+                    <span class="lap-diff">+${formatTime(diffMinutes)}:${formatTime(diffSeconds)}:${formatTime(diffMilliseconds)}</span>
+                `;
+                
+                lapsList.appendChild(lapItem);
+            });
+        }
+        
+        // 添加事件监听
+        startBtn.addEventListener('click', startTimer);
+        pauseBtn.addEventListener('click', pauseTimer);
+        resetBtn.addEventListener('click', resetTimer);
+        lapBtn.addEventListener('click', recordLap);
+        
+        // 键盘快捷键支持
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (isRunning) pauseTimer();
+                else startTimer();
+            }
+            if (e.code === 'KeyR') resetTimer();
+            if (e.code === 'KeyL' && isRunning) recordLap();
+        });
+        
+        // 初始化显示
+        resetTimer();
+    </script>
+</body>
+</html>

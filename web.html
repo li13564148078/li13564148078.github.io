@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DragonXI 浏览器</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #0a0e14;
+            color: #e6e6e6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 100, 150, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 150, 200, 0.1) 0%, transparent 20%);
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body.light-mode {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+            width: 100%;
+        }
+        
+        .logo {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #00d4ff, #00ffaa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #8a8a8a;
+            letter-spacing: 4px;
+            font-weight: 300;
+        }
+
+        body.light-mode .subtitle {
+            color: #666;
+        }
+        
+        .search-container {
+            width: 100%;
+            background: rgba(20, 25, 35, 0.8);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 212, 255, 0.1);
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+        }
+
+        body.light-mode .search-container {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: rgba(10, 15, 25, 0.9);
+            border-radius: 12px;
+            padding: 5px;
+            border: 1px solid rgba(0, 200, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        body.light-mode .search-box {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .search-box:focus-within {
+            border-color: #00d4ff;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+        }
+        
+        .search-icon {
+            padding: 0 15px;
+            color: #00d4ff;
+            font-size: 1.2rem;
+        }
+        
+        #search-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-size: 1.1rem;
+            padding: 15px 0;
+        }
+
+        body.light-mode #search-input {
+            color: #333;
+        }
+        
+        #search-btn {
+            background: linear-gradient(90deg, #00a6ff, #00ffcc);
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        
+        #search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 214, 255, 0.4);
+        }
+        
+        .notification-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        
+        .notification {
+            width: 90%;
+            max-width: 600px;
+            background: rgba(20, 25, 35, 0.95);
+            border-radius: 16px;
+            padding: 30px;
+            border-left: 4px solid #00d4ff;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 212, 255, 0.1);
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        body.light-mode .notification {
+            background: rgba(255, 255, 255, 0.95);
+        }
+        
+        .notification-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            justify-content: space-between;
+        }
+        
+        .notification-icon {
+            color: #00d4ff;
+            font-size: 1.3rem;
+            margin-right: 10px;
+        }
+        
+        .notification-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, #00d4ff, #00ffaa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .notification-content {
+            line-height: 1.6;
+            color: #b0b0b0;
+            margin-bottom: 20px;
+        }
+
+        body.light-mode .notification-content {
+            color: #555;
+        }
+        
+        #confirm-btn {
+            background: rgba(0, 212, 255, 0.1);
+            color: #00d4ff;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            padding: 12px 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            width: 100%;
+        }
+
+        body.light-mode #confirm-btn {
+            background: rgba(0, 212, 255, 0.2);
+        }
+        
+        #confirm-btn:hover {
+            background: rgba(0, 212, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
+        }
+        
+        footer {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 20px;
+            padding: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            width: 100%;
+        }
+
+        body.light-mode footer {
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .developer {
+            color: #00d4ff;
+            font-weight: 600;
+        }
+        
+        .tech-elements {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            opacity: 0.7;
+        }
+        
+        .tech-element {
+            margin: 0 15px;
+            text-align: center;
+        }
+        
+        .tech-icon {
+            font-size: 1.8rem;
+            color: #00d4ff;
+            margin-bottom: 8px;
+        }
+
+        /* 菜单按钮 */
+        .menu-btn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: transparent;
+            border: none;
+            color: #00d4ff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 10px;
+            z-index: 100;
+        }
+
+        .menu-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: rgba(20, 25, 35, 0.95);
+            border-radius: 8px;
+            padding: 10px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 212, 255, 0.1);
+            backdrop-filter: blur(10px);
+            display: none;
+            z-index: 100;
+            min-width: 150px;
+        }
+
+        body.light-mode .menu-dropdown {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .menu-dropdown.show {
+            display: block;
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        .menu-item {
+            padding: 10px 20px;
+            color: #e6e6e6;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        body.light-mode .menu-item {
+            color: #333;
+        }
+
+        .menu-item:hover {
+            background: rgba(0, 212, 255, 0.1);
+            color: #00d4ff;
+        }
+
+        .close-notification {
+            background: transparent;
+            border: none;
+            color: #aaa;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close-notification:hover {
+            color: #00d4ff;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2.8rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+                letter-spacing: 2px;
+            }
+            
+            .search-container, .notification {
+                padding: 20px;
+            }
+            
+            .tech-elements {
+                flex-wrap: wrap;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 2.2rem;
+            }
+            
+            .search-box {
+                flex-direction: column;
+                background: transparent;
+                border: none;
+            }
+            
+            #search-input {
+                width: 100%;
+                background: rgba(10, 15, 25, 0.9);
+                padding: 15px;
+                border-radius: 10px;
+                margin-bottom: 10px;
+                border: 1px solid rgba(0, 200, 255, 0.2);
+            }
+
+            body.light-mode #search-input {
+                background: rgba(255, 255, 255, 0.9);
+            }
+            
+            #search-btn {
+                width: 100%;
+            }
+
+            .menu-btn {
+                font-size: 1.3rem;
+            }
+
+            .menu-dropdown {
+                top: 40px;
+            }
+        }
+        
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease forwards;
+        }
+        
+        .delayed-1 {
+            animation-delay: 0.2s;
+            opacity: 0;
+        }
+        
+        .delayed-2 {
+            animation-delay: 0.4s;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 菜单按钮 -->
+        <button class="menu-btn" id="menuBtn">
+            <i class="fas fa-ellipsis-v"></i>
+        </button>
+        
+        <!-- 菜单下拉选项 -->
+        <div class="menu-dropdown" id="menuDropdown">
+            <div class="menu-item" id="themeToggle">
+                <i class="fas fa-moon"></i> 深色/浅色模式
+            </div>
+            <div class="menu-item" id="aboutUs">
+                <i class="fas fa-info-circle"></i> 关于我们
+            </div>
+        </div>
+        
+        <header class="fade-in">
+            <div class="logo">DRAGONXI</div>
+            <div class="subtitle">浏览器</div>
+        </header>
+        
+        <div class="search-container fade-in delayed-1">
+            <div class="search-box">
+                <div class="search-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <input type="text" id="search-input" placeholder="使用百度搜索...">
+                <button id="search-btn">搜索</button>
+            </div>
+        </div>
+        
+        <div class="tech-elements fade-in delayed-2">
+            <div class="tech-element">
+                <div class="tech-icon"><i class="fas fa-bolt"></i></div>
+                <div>快速搜索</div>
+            </div>
+            <div class="tech-element">
+                <div class="tech-icon"><i class="fas fa-shield-alt"></i></div>
+                <div>安全浏览</div>
+            </div>
+            <div class="tech-element">
+                <div class="tech-icon"><i class="fas fa-rocket"></i></div>
+                <div>高效体验</div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>本页面由 <span class="developer">DragonXI的李宸熙</span> 开发</p>
+            <p>© 2026 DragonXI 浏览器 | 版本 1.0</p>
+        </footer>
+    </div>
+
+    <!-- 全屏通知 -->
+    <div class="notification-overlay" id="notificationOverlay">
+        <div class="notification">
+            <div class="notification-header">
+                <div style="display: flex; align-items: center;">
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="notification-title">来自DragonXI通知</div>
+                </div>
+                <button class="close-notification" id="closeNotification">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="notification-content">
+                <p>欢迎使用DragonXI的李宸熙制作的浏览器！这是一个简约无广告的浏览器。</p>
+                <p>本页面采用深色主题，右上角可以切换主题。</p>
+                <p>由于作者学业原因和技术原因更新可能不及时。非常抱歉！</p>
+		<p>再次感谢您使用DragonXI浏览器。祝你使用愉快！</p>
+		<p>我承诺不会在此浏览器中放置任何广告，但无法保证您访问的网站无广告！</p>
+		<p>作者：李宸熙</p>
+            </div>
+            <button id="confirm-btn">确认</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 搜索功能
+            const searchInput = document.getElementById('search-input');
+            const searchBtn = document.getElementById('search-btn');
+            
+            // 搜索函数
+            function performSearch() {
+                const query = searchInput.value.trim();
+                if (query) {
+                    // 使用百度搜索
+                    window.open(`https://www.baidu.com/s?wd=${encodeURIComponent(query)}`, '_self');
+                } else {
+                    // 如果搜索框为空，直接跳转到百度首页
+                    window.open('https://www.baidu.com', '_self');
+                }
+            }
+            
+            // 点击搜索按钮
+            searchBtn.addEventListener('click', performSearch);
+            
+            // 按Enter键搜索
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+            
+            // 确认按钮功能
+            const confirmBtn = document.getElementById('confirm-btn');
+            const notificationOverlay = document.getElementById('notificationOverlay');
+            
+            confirmBtn.addEventListener('click', function() {
+                // 隐藏通知
+                notificationOverlay.style.display = 'none';
+            });
+            
+            // 关闭通知按钮
+            const closeNotification = document.getElementById('closeNotification');
+            closeNotification.addEventListener('click', function() {
+                notificationOverlay.style.display = 'none';
+            });
+            
+            // 菜单功能
+            const menuBtn = document.getElementById('menuBtn');
+            const menuDropdown = document.getElementById('menuDropdown');
+            
+            menuBtn.addEventListener('click', function() {
+                menuDropdown.classList.toggle('show');
+            });
+            
+            // 点击其他地方关闭菜单
+            document.addEventListener('click', function(event) {
+                if (!menuBtn.contains(event.target) && !menuDropdown.contains(event.target)) {
+                    menuDropdown.classList.remove('show');
+                }
+            });
+            
+            // 主题切换
+            const themeToggle = document.getElementById('themeToggle');
+            themeToggle.addEventListener('click', function() {
+                document.body.classList.toggle('light-mode');
+                
+                // 更新图标
+                const icon = themeToggle.querySelector('i');
+                if (document.body.classList.contains('light-mode')) {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                } else {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                }
+            });
+            
+            // 关于我们
+            const aboutUs = document.getElementById('aboutUs');
+            aboutUs.addEventListener('click', function() {
+                window.location.href = 'about_us.html';
+            });
+            
+            // 添加一些交互效果
+            searchInput.addEventListener('focus', function() {
+                this.parentElement.style.boxShadow = '0 0 20px rgba(0, 212, 255, 0.3)';
+            });
+            
+            searchInput.addEventListener('blur', function() {
+                this.parentElement.style.boxShadow = 'none';
+            });
+            
+            // 页面加载完成后自动聚焦到搜索框
+            setTimeout(() => {
+                searchInput.focus();
+            }, 500);
+        });
+    </script>
+</body>
+</html>

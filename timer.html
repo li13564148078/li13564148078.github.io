@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多功能网页计时器</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a2a6c, #2a3e8c, #4a6fd8);
+            padding: 20px;
+        }
+        
+        .timer-container {
+            width: 100%;
+            max-width: 800px;
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background-color: rgba(0, 0, 0, 0.2);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+        
+        .timer-content {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        
+        .timer-display {
+            flex: 1;
+            min-width: 300px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .time-display {
+            width: 100%;
+            max-width: 400px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .time {
+            font-size: 5.5rem;
+            font-weight: bold;
+            color: white;
+            letter-spacing: 3px;
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .timer-title {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 10px;
+        }
+        
+        .timer-controls {
+            flex: 1;
+            min-width: 300px;
+            padding: 30px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 0 0 20px 0;
+        }
+        
+        .mode-selector {
+            display: flex;
+            margin-bottom: 30px;
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+            padding: 5px;
+        }
+        
+        .mode-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: none;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #444;
+            transition: all 0.3s;
+        }
+        
+        .mode-btn.active {
+            background-color: white;
+            color: #1a2a6c;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .controls {
+            margin-bottom: 30px;
+        }
+        
+        .control-title {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .control-title i {
+            margin-right: 10px;
+            color: #1a2a6c;
+        }
+        
+        .time-settings {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .time-input {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            margin: 0 10px;
+        }
+        
+        .time-input label {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .number-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.5rem;
+            text-align: center;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .number-input:focus {
+            border-color: #4a6fd8;
+        }
+        
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 18px 0;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-start {
+            background-color: #0be881;
+            color: #333;
+        }
+        
+        .btn-start:hover {
+            background-color: #0ad873;
+        }
+        
+        .btn-pause {
+            background-color: #ffa502;
+            color: white;
+        }
+        
+        .btn-pause:hover {
+            background-color: #e59400;
+        }
+        
+        .btn-reset {
+            background-color: #ff4757;
+            color: white;
+        }
+        
+        .btn-reset:hover {
+            background-color: #ff3742;
+        }
+        
+        .lap-times {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .lap-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .lap-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .lap-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        
+        .lap-item:last-child {
+            border-bottom: none;
+        }
+        
+        .lap-number {
+            color: #666;
+        }
+        
+        .lap-time {
+            font-weight: 600;
+            color: #1a2a6c;
+        }
+        
+        .lap-empty {
+            text-align: center;
+            color: #aaa;
+            padding: 20px 0;
+            font-style: italic;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: rgba(255, 255, 255, 0.8);
+            background-color: rgba(0, 0, 0, 0.1);
+            font-size: 0.9rem;
+        }
+        
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #0be881;
+            color: #333;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1000;
+        }
+        
+        @media (max-width: 768px) {
+            .timer-content {
+                flex-direction: column;
+            }
+            
+            .timer-display, .timer-controls {
+                min-width: 100%;
+            }
+            
+            .time {
+                font-size: 4rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .time {
+                font-size: 3.2rem;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .mode-btn {
+                padding: 12px;
+                font-size: 1rem;
+            }
+            
+            .number-input {
+                padding: 12px;
+                font-size: 1.2rem;
+            }
+            
+            .btn {
+                padding: 15px 0;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="timer-container">
+        <div class="header">
+            <h1><i class="fas fa-stopwatch"></i> 多功能网页计时器</h1>
+            <p>支持倒计时、正计时和计时功能，适用于各种计时场景</p>
+        </div>
+        
+        <div class="timer-content">
+            <div class="timer-display">
+                <div class="time-display">
+                    <div class="timer-title" id="timer-title">倒计时</div>
+                    <div class="time" id="time-display">25:00</div>
+                </div>
+                
+                <div class="lap-times">
+                    <div class="lap-header">
+                        <span>计次</span>
+                        <span>时间</span>
+                    </div>
+                    <div class="lap-list" id="lap-list">
+                        <div class="lap-empty">暂无计次记录</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="timer-controls">
+                <div class="mode-selector">
+                    <button class="mode-btn active" data-mode="countdown">倒计时</button>
+                    <button class="mode-btn" data-mode="stopwatch">正计时</button>
+                    <button class="mode-btn" data-mode="timer">计时器</button>
+                </div>
+                
+                <div class="controls">
+                    <div class="control-title">
+                        <i class="fas fa-clock"></i> 时间设置
+                    </div>
+                    
+                    <div class="time-settings" id="time-settings">
+                        <!-- 倒计时设置 -->
+                        <div class="time-input" id="countdown-settings">
+                            <label for="minutes">分钟</label>
+                            <input type="number" id="minutes" class="number-input" min="0" max="60" value="25">
+                        </div>
+                        <div class="time-input" id="seconds-settings">
+                            <label for="seconds">秒钟</label>
+                            <input type="number" id="seconds" class="number-input" min="0" max="59" value="0">
+                        </div>
+                    </div>
+                    
+                    <div class="buttons">
+                        <button class="btn btn-start" id="start-btn">
+                            <i class="fas fa-play"></i> 开始
+                        </button>
+                        <button class="btn btn-pause" id="pause-btn" disabled>
+                            <i class="fas fa-pause"></i> 暂停
+                        </button>
+                        <button class="btn btn-reset" id="reset-btn">
+                            <i class="fas fa-redo"></i> 重置
+                        </button>
+                    </div>
+                    
+                    <div class="buttons">
+                        <button class="btn" id="lap-btn" style="grid-column: span 3; background-color: #4a6fd8; color: white;">
+                            <i class="fas fa-flag"></i> 计次
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>网页计时器 &copy; 2026 DragonXi保留所有权利</p>
+        </div>
+    </div>
+    
+    <div class="alert" id="alert">时间到！</div>
+
+    <script>
+        // 计时器状态
+        let timerMode = 'countdown'; // 模式: countdown, stopwatch, timer
+        let isRunning = false;
+        let intervalId = null;
+        let timeRemaining = 25 * 60; // 默认25分钟倒计时 (单位: 秒)
+        let elapsedTime = 0; // 用于正计时
+        let startTime = 0; // 计时开始时间
+        let lapTimes = [];
+        
+        // DOM元素
+        const timeDisplay = document.getElementById('time-display');
+        const timerTitle = document.getElementById('timer-title');
+        const startBtn = document.getElementById('start-btn');
+        const pauseBtn = document.getElementById('pause-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const lapBtn = document.getElementById('lap-btn');
+        const lapList = document.getElementById('lap-list');
+        const modeButtons = document.querySelectorAll('.mode-btn');
+        const minutesInput = document.getElementById('minutes');
+        const secondsInput = document.getElementById('seconds');
+        const timeSettings = document.getElementById('time-settings');
+        const alertElement = document.getElementById('alert');
+        
+        // 更新显示的时间
+        function updateDisplay() {
+            let timeToDisplay = 0;
+            let titleText = '';
+            
+            switch(timerMode) {
+                case 'countdown':
+                    timeToDisplay = timeRemaining;
+                    titleText = '倒计时';
+                    break;
+                case 'stopwatch':
+                    timeToDisplay = elapsedTime;
+                    titleText = '正计时';
+                    break;
+                case 'timer':
+                    timeToDisplay = elapsedTime;
+                    titleText = '计时器';
+                    break;
+            }
+            
+            timerTitle.textContent = titleText;
+            
+            const hours = Math.floor(timeToDisplay / 3600);
+            const minutes = Math.floor((timeToDisplay % 3600) / 60);
+            const seconds = timeToDisplay % 60;
+            
+            if (hours > 0) {
+                timeDisplay.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            } else {
+                timeDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+        }
+        
+        // 开始计时
+        function startTimer() {
+            if (isRunning) return;
+            
+            isRunning = true;
+            startTime = Date.now() - (timerMode === 'stopwatch' || timerMode === 'timer' ? elapsedTime * 1000 : (getInitialCountdownTime() - timeRemaining) * 1000);
+            
+            intervalId = setInterval(() => {
+                if (timerMode === 'countdown') {
+                    timeRemaining--;
+                    
+                    if (timeRemaining <= 0) {
+                        timeRemaining = 0;
+                        stopTimer();
+                        showAlert('时间到！');
+                        // 播放提示音
+                        playBeep();
+                    }
+                } else if (timerMode === 'stopwatch' || timerMode === 'timer') {
+                    elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+                }
+                
+                updateDisplay();
+            }, 1000);
+            
+            startBtn.disabled = true;
+            pauseBtn.disabled = false;
+            minutesInput.disabled = true;
+            secondsInput.disabled = true;
+            
+            if (timerMode === 'stopwatch' || timerMode === 'timer') {
+                lapBtn.disabled = false;
+            }
+        }
+        
+        // 暂停计时
+        function pauseTimer() {
+            if (!isRunning) return;
+            
+            isRunning = false;
+            clearInterval(intervalId);
+            
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            
+            if (timerMode === 'stopwatch' || timerMode === 'timer') {
+                lapBtn.disabled = false;
+            }
+        }
+        
+        // 重置计时
+        function resetTimer() {
+            isRunning = false;
+            clearInterval(intervalId);
+            
+            if (timerMode === 'countdown') {
+                timeRemaining = getInitialCountdownTime();
+            } else {
+                elapsedTime = 0;
+                lapTimes = [];
+                updateLapList();
+            }
+            
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            minutesInput.disabled = false;
+            secondsInput.disabled = false;
+            lapBtn.disabled = false;
+            
+            updateDisplay();
+        }
+        
+        // 停止计时
+        function stopTimer() {
+            isRunning = false;
+            clearInterval(intervalId);
+            
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            minutesInput.disabled = false;
+            secondsInput.disabled = false;
+            lapBtn.disabled = false;
+        }
+        
+        // 获取初始倒计时时间
+        function getInitialCountdownTime() {
+            const minutes = parseInt(minutesInput.value) || 0;
+            const seconds = parseInt(secondsInput.value) || 0;
+            return minutes * 60 + seconds;
+        }
+        
+        // 添加计次
+        function addLap() {
+            if (!isRunning && timerMode !== 'stopwatch' && timerMode !== 'timer') return;
+            
+            const lapTime = timerMode === 'stopwatch' || timerMode === 'timer' ? elapsedTime : getInitialCountdownTime() - timeRemaining;
+            const hours = Math.floor(lapTime / 3600);
+            const minutes = Math.floor((lapTime % 3600) / 60);
+            const seconds = lapTime % 60;
+            
+            let timeString = '';
+            if (hours > 0) {
+                timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            } else {
+                timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+            
+            lapTimes.unshift({
+                number: lapTimes.length + 1,
+                time: timeString
+            });
+            
+            updateLapList();
+        }
+        
+        // 更新计次列表
+        function updateLapList() {
+            if (lapTimes.length === 0) {
+                lapList.innerHTML = '<div class="lap-empty">暂无计次记录</div>';
+                return;
+            }
+            
+            lapList.innerHTML = lapTimes.map(lap => `
+                <div class="lap-item">
+                    <span class="lap-number">计次 ${lap.number}</span>
+                    <span class="lap-time">${lap.time}</span>
+                </div>
+            `).join('');
+        }
+        
+        // 显示提示
+        function showAlert(message) {
+            alertElement.textContent = message;
+            alertElement.style.display = 'block';
+            
+            setTimeout(() => {
+                alertElement.style.display = 'none';
+            }, 3000);
+        }
+        
+        // 播放提示音
+        function playBeep() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 1);
+            } catch (e) {
+                console.log("音频播放失败:", e);
+            }
+        }
+        
+        // 切换模式
+        function switchMode(mode) {
+            timerMode = mode;
+            
+            // 更新按钮状态
+            modeButtons.forEach(btn => {
+                if (btn.dataset.mode === mode) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            // 停止当前计时
+            if (isRunning) {
+                clearInterval(intervalId);
+                isRunning = false;
+            }
+            
+            // 重置控制按钮
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            
+            // 根据模式更新界面
+            if (mode === 'countdown') {
+                timeSettings.innerHTML = `
+                    <div class="time-input" id="countdown-settings">
+                        <label for="minutes">分钟</label>
+                        <input type="number" id="minutes" class="number-input" min="0" max="60" value="25">
+                    </div>
+                    <div class="time-input" id="seconds-settings">
+                        <label for="seconds">秒钟</label>
+                        <input type="number" id="seconds" class="number-input" min="0" max="59" value="0">
+                    </div>
+                `;
+                
+                // 重新获取输入元素
+                minutesInput.value = 25;
+                secondsInput.value = 0;
+                timeRemaining = getInitialCountdownTime();
+                lapBtn.disabled = false;
+                
+                // 重新绑定事件
+                document.getElementById('minutes').addEventListener('change', updateCountdownTime);
+                document.getElementById('seconds').addEventListener('change', updateCountdownTime);
+            } 
+            else if (mode === 'stopwatch') {
+                timeSettings.innerHTML = `
+                    <div class="time-input" style="grid-column: span 2;">
+                        <label>正计时模式</label>
+                        <div class="number-input" style="background-color: #f5f5f5; color: #666;">00:00:00</div>
+                    </div>
+                `;
+                elapsedTime = 0;
+                lapBtn.disabled = true;
+            }
+            else if (mode === 'timer') {
+                timeSettings.innerHTML = `
+                    <div class="time-input" style="grid-column: span 2;">
+                        <label>计时器模式</label>
+                        <div class="number-input" style="background-color: #f5f5f5; color: #666;">00:00:00</div>
+                    </div>
+                `;
+                elapsedTime = 0;
+                lapBtn.disabled = false;
+            }
+            
+            lapTimes = [];
+            updateLapList();
+            updateDisplay();
+        }
+        
+        // 更新倒计时时间
+        function updateCountdownTime() {
+            if (isRunning) return;
+            timeRemaining = getInitialCountdownTime();
+            updateDisplay();
+        }
+        
+        // 事件监听
+        startBtn.addEventListener('click', startTimer);
+        pauseBtn.addEventListener('click', pauseTimer);
+        resetBtn.addEventListener('click', resetTimer);
+        lapBtn.addEventListener('click', addLap);
+        
+        // 模式切换按钮
+        modeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                switchMode(button.dataset.mode);
+            });
+        });
+        
+        // 输入变化事件
+        minutesInput.addEventListener('change', updateCountdownTime);
+        secondsInput.addEventListener('change', updateCountdownTime);
+        
+        // 键盘快捷键
+        document.addEventListener('keydown', (e) => {
+            // 空格键: 开始/暂停
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (isRunning) {
+                    pauseTimer();
+                } else {
+                    startTimer();
+                }
+            }
+            
+            // R键: 重置
+            if (e.code === 'KeyR') {
+                resetTimer();
+            }
+            
+            // L键: 计次
+            if (e.code === 'KeyL' && (timerMode === 'stopwatch' || timerMode === 'timer')) {
+                addLap();
+            }
+            
+            // 数字键1,2,3切换模式
+            if (e.code === 'Digit1') {
+                switchMode('countdown');
+            }
+            if (e.code === 'Digit2') {
+                switchMode('stopwatch');
+            }
+            if (e.code === 'Digit3') {
+                switchMode('timer');
+            }
+        });
+        
+        // 初始化
+        updateDisplay();
+    </script>
+</body>
+</html>

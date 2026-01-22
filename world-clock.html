@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>世界时钟 - 全球时间查看器</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+        }
+        
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .current-time-section {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .local-time {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            flex: 1;
+            min-width: 300px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .timezone-selector {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            flex: 1;
+            min-width: 300px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .section-title {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title i {
+            margin-right: 10px;
+            color: #4facfe;
+        }
+        
+        .current-time-display {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .current-date {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+        
+        .location-info {
+            display: flex;
+            align-items: center;
+            font-size: 1.1rem;
+        }
+        
+        .location-info i {
+            margin-right: 8px;
+            color: #00f2fe;
+        }
+        
+        .timezone-select {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1rem;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            margin-bottom: 20px;
+        }
+        
+        .add-timezone-btn {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1rem;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .add-timezone-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+        
+        .world-clocks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .clock-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
+            position: relative;
+        }
+        
+        .clock-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .city-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .timezone-name {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+        
+        .clock-time {
+            font-size: 2.8rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .clock-date {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+        
+        .time-difference {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .time-ahead {
+            background-color: rgba(46, 213, 115, 0.2);
+            color: #2ed573;
+        }
+        
+        .time-behind {
+            background-color: rgba(255, 71, 87, 0.2);
+            color: #ff4757;
+        }
+        
+        .time-same {
+            background-color: rgba(255, 165, 2, 0.2);
+            color: #ffa502;
+        }
+        
+        .day-night-indicator {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .indicator-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+        
+        .day-icon {
+            background-color: rgba(255, 219, 88, 0.2);
+            color: #ffdb58;
+        }
+        
+        .night-icon {
+            background-color: rgba(52, 73, 94, 0.2);
+            color: #a4b0be;
+        }
+        
+        .indicator-text {
+            font-weight: bold;
+        }
+        
+        .remove-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 71, 87, 0.2);
+            color: #ff4757;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .remove-btn:hover {
+            background: rgba(255, 71, 87, 0.4);
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        
+        .no-clocks {
+            text-align: center;
+            padding: 50px 20px;
+            grid-column: 1 / -1;
+            font-size: 1.2rem;
+            opacity: 0.7;
+        }
+        
+        .sun-icon {
+            color: #FFD700;
+        }
+        
+        .moon-icon {
+            color: #A9A9A9;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .current-time-section {
+                flex-direction: column;
+            }
+            
+            .world-clocks-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .current-time-display {
+                font-size: 2.8rem;
+            }
+            
+            .clock-time {
+                font-size: 2.2rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .current-time-display {
+                font-size: 2.2rem;
+            }
+            
+            .clock-time {
+                font-size: 1.8rem;
+            }
+            
+            .clock-card, .local-time, .timezone-selector {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-globe-americas"></i> 世界时钟</h1>
+            <p>实时查看全球主要城市的时间，支持添加自定义时区，了解世界各地的时间差异</p>
+        </header>
+        
+        <div class="current-time-section">
+            <div class="local-time">
+                <h2 class="section-title"><i class="fas fa-clock"></i> 本地时间</h2>
+                <div class="current-time-display" id="local-time">00:00:00</div>
+                <div class="current-date" id="local-date">2023年1月1日 星期日</div>
+                <div class="location-info">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span id="local-location">正在获取您的位置...</span>
+                </div>
+            </div>
+            
+            <div class="timezone-selector">
+                <h2 class="section-title"><i class="fas fa-plus-circle"></i> 添加时区</h2>
+                <select class="timezone-select" id="timezone-select">
+                    <option value="">选择城市/时区...</option>
+                    <!-- 选项将通过JavaScript动态添加 -->
+                </select>
+                <button class="add-timezone-btn" id="add-timezone-btn">
+                    <i class="fas fa-plus"></i> 添加到世界时钟
+                </button>
+            </div>
+        </div>
+        
+        <div class="world-clocks-grid" id="world-clocks-grid">
+            <!-- 时钟卡片将通过JavaScript动态添加 -->
+        </div>
+        
+        <footer class="footer">
+            <p>世界时钟 &copy; 2026 DragonXi保留所有权利 | 数据来自IANA时区数据库</p>
+        </footer>
+    </div>
+
+    <script>
+        // 主要城市和时区数据
+        const timezones = [
+            { id: "Asia/Shanghai", city: "上海", country: "中国", offset: 8 },
+            { id: "Asia/Tokyo", city: "东京", country: "日本", offset: 9 },
+            { id: "Australia/Sydney", city: "悉尼", country: "澳大利亚", offset: 10 },
+            { id: "Europe/London", city: "伦敦", country: "英国", offset: 0 },
+            { id: "Europe/Paris", city: "巴黎", country: "法国", offset: 1 },
+            { id: "Europe/Berlin", city: "柏林", country: "德国", offset: 1 },
+            { id: "Europe/Moscow", city: "莫斯科", country: "俄罗斯", offset: 3 },
+            { id: "America/New_York", city: "纽约", country: "美国", offset: -5 },
+            { id: "America/Chicago", city: "芝加哥", country: "美国", offset: -6 },
+            { id: "America/Denver", city: "丹佛", country: "美国", offset: -7 },
+            { id: "America/Los_Angeles", city: "洛杉矶", country: "美国", offset: -8 },
+            { id: "America/Toronto", city: "多伦多", country: "加拿大", offset: -5 },
+            { id: "America/Sao_Paulo", city: "圣保罗", country: "巴西", offset: -3 },
+            { id: "Africa/Cairo", city: "开罗", country: "埃及", offset: 2 },
+            { id: "Africa/Johannesburg", city: "约翰内斯堡", country: "南非", offset: 2 },
+            { id: "Asia/Dubai", city: "迪拜", country: "阿联酋", offset: 4 },
+            { id: "Asia/Singapore", city: "新加坡", country: "新加坡", offset: 8 },
+            { id: "Asia/Seoul", city: "首尔", country: "韩国", offset: 9 },
+            { id: "Asia/Kolkata", city: "新德里", country: "印度", offset: 5.5 },
+            { id: "Pacific/Auckland", city: "奥克兰", country: "新西兰", offset: 12 }
+        ];
+        
+        // 获取DOM元素
+        const localTimeElement = document.getElementById('local-time');
+        const localDateElement = document.getElementById('local-date');
+        const localLocationElement = document.getElementById('local-location');
+        const timezoneSelectElement = document.getElementById('timezone-select');
+        const addTimezoneButton = document.getElementById('add-timezone-btn');
+        const worldClocksGrid = document.getElementById('world-clocks-grid');
+        
+        // 存储已选择的时区
+        let selectedTimezones = [];
+        
+        // 初始化
+        function init() {
+            // 获取用户本地时区
+            const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const localTimezoneData = timezones.find(tz => tz.id === localTimezone) || 
+                                    { id: localTimezone, city: localTimezone.split('/')[1] || localTimezone, country: "本地", offset: 0 };
+            
+            // 设置本地时间显示
+            updateLocalTime();
+            setInterval(updateLocalTime, 1000);
+            
+            // 设置本地位置显示
+            localLocationElement.textContent = `${localTimezoneData.city}, ${localTimezoneData.country} (UTC${formatOffset(localTimezoneData.offset)})`;
+            
+            // 填充时区选择下拉框
+            populateTimezoneSelect();
+            
+            // 添加默认时区
+            addDefaultTimezones();
+            
+            // 事件监听
+            addTimezoneButton.addEventListener('click', addSelectedTimezone);
+            
+            // 更新世界时钟
+            setInterval(updateWorldClocks, 1000);
+        }
+        
+        // 填充时区选择下拉框
+        function populateTimezoneSelect() {
+            timezones.forEach(timezone => {
+                const option = document.createElement('option');
+                option.value = timezone.id;
+                option.textContent = `${timezone.city}, ${timezone.country} (UTC${formatOffset(timezone.offset)})`;
+                timezoneSelectElement.appendChild(option);
+            });
+        }
+        
+        // 添加默认时区
+        function addDefaultTimezones() {
+            const defaultTimezones = ["America/New_York", "Europe/London", "Asia/Tokyo", "Australia/Sydney"];
+            
+            defaultTimezones.forEach(timezoneId => {
+                const timezone = timezones.find(tz => tz.id === timezoneId);
+                if (timezone && !selectedTimezones.some(tz => tz.id === timezoneId)) {
+                    selectedTimezones.push(timezone);
+                }
+            });
+            
+            updateWorldClocksDisplay();
+        }
+        
+        // 添加选中的时区
+        function addSelectedTimezone() {
+            const selectedTimezoneId = timezoneSelectElement.value;
+            
+            if (!selectedTimezoneId) {
+                alert("请选择一个时区");
+                return;
+            }
+            
+            // 检查是否已添加
+            if (selectedTimezones.some(tz => tz.id === selectedTimezoneId)) {
+                alert("此时区已添加");
+                return;
+            }
+            
+            const timezone = timezones.find(tz => tz.id === selectedTimezoneId);
+            if (timezone) {
+                selectedTimezones.push(timezone);
+                updateWorldClocksDisplay();
+                timezoneSelectElement.value = "";
+            }
+        }
+        
+        // 移除时区
+        function removeTimezone(timezoneId) {
+            selectedTimezones = selectedTimezones.filter(tz => tz.id !== timezoneId);
+            updateWorldClocksDisplay();
+        }
+        
+        // 更新世界时钟显示
+        function updateWorldClocksDisplay() {
+            worldClocksGrid.innerHTML = '';
+            
+            if (selectedTimezones.length === 0) {
+                worldClocksGrid.innerHTML = '<div class="no-clocks">暂无添加的世界时钟，请从上方选择时区添加</div>';
+                return;
+            }
+            
+            selectedTimezones.forEach(timezone => {
+                const clockCard = createClockCard(timezone);
+                worldClocksGrid.appendChild(clockCard);
+            });
+            
+            // 更新所有时钟的时间
+            updateWorldClocks();
+        }
+        
+        // 创建时钟卡片
+        function createClockCard(timezone) {
+            const card = document.createElement('div');
+            card.className = 'clock-card';
+            card.id = `clock-${timezone.id.replace(/\//g, '-')}`;
+            
+            const timeData = getTimeForTimezone(timezone.id);
+            const localTimeData = getCurrentLocalTime();
+            
+            // 计算时差
+            const timeDiff = calculateTimeDifference(localTimeData.offset, timezone.offset);
+            
+            card.innerHTML = `
+                <button class="remove-btn" data-timezone="${timezone.id}">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="card-header">
+                    <div class="city-name">${timezone.city}, ${timezone.country}</div>
+                    <div class="timezone-name">${timezone.id}</div>
+                </div>
+                <div class="clock-time">${timeData.time}</div>
+                <div class="clock-date">${timeData.date}</div>
+                <div class="time-difference ${getTimeDiffClass(timeDiff)}">
+                    ${formatTimeDifference(timeDiff)}
+                </div>
+                <div class="day-night-indicator">
+                    <div class="indicator-icon ${timeData.isDaytime ? 'day-icon' : 'night-icon'}">
+                        <i class="fas ${timeData.isDaytime ? 'fa-sun sun-icon' : 'fa-moon moon-icon'}"></i>
+                    </div>
+                    <div class="indicator-text">${timeData.isDaytime ? '白天' : '夜晚'}</div>
+                </div>
+                <div class="location-info">
+                    <i class="fas fa-globe-americas"></i>
+                    <span>UTC${formatOffset(timezone.offset)}</span>
+                </div>
+            `;
+            
+            // 添加移除按钮事件监听
+            const removeButton = card.querySelector('.remove-btn');
+            removeButton.addEventListener('click', () => removeTimezone(timezone.id));
+            
+            return card;
+        }
+        
+        // 更新本地时间
+        function updateLocalTime() {
+            const now = new Date();
+            const timeData = formatTime(now, Intl.DateTimeFormat().resolvedOptions().timeZone);
+            
+            localTimeElement.textContent = timeData.time;
+            localDateElement.textContent = timeData.date;
+        }
+        
+        // 更新所有世界时钟
+        function updateWorldClocks() {
+            selectedTimezones.forEach(timezone => {
+                const card = document.getElementById(`clock-${timezone.id.replace(/\//g, '-')}`);
+                if (!card) return;
+                
+                const timeData = getTimeForTimezone(timezone.id);
+                const timeElement = card.querySelector('.clock-time');
+                const dateElement = card.querySelector('.clock-date');
+                const dayNightIcon = card.querySelector('.indicator-icon i');
+                const dayNightText = card.querySelector('.indicator-text');
+                
+                if (timeElement) timeElement.textContent = timeData.time;
+                if (dateElement) dateElement.textContent = timeData.date;
+                
+                // 更新白天/夜晚指示器
+                if (timeData.isDaytime) {
+                    card.querySelector('.indicator-icon').className = 'indicator-icon day-icon';
+                    dayNightIcon.className = 'fas fa-sun sun-icon';
+                    dayNightText.textContent = '白天';
+                } else {
+                    card.querySelector('.indicator-icon').className = 'indicator-icon night-icon';
+                    dayNightIcon.className = 'fas fa-moon moon-icon';
+                    dayNightText.textContent = '夜晚';
+                }
+            });
+        }
+        
+        // 获取指定时区的时间
+        function getTimeForTimezone(timezoneId) {
+            return formatTime(new Date(), timezoneId);
+        }
+        
+        // 获取当前本地时间信息
+        function getCurrentLocalTime() {
+            const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const localTimezoneData = timezones.find(tz => tz.id === localTimezone);
+            
+            return {
+                offset: localTimezoneData ? localTimezoneData.offset : 0
+            };
+        }
+        
+        // 格式化时间
+        function formatTime(date, timezone) {
+            const formatter = new Intl.DateTimeFormat('zh-CN', {
+                timeZone: timezone,
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                weekday: 'long'
+            });
+            
+            const parts = formatter.formatToParts(date);
+            let time = '', dateStr = '', hour = 0;
+            
+            for (const part of parts) {
+                if (part.type === 'hour') hour = parseInt(part.value);
+                if (part.type === 'hour' || part.type === 'minute' || part.type === 'second') {
+                    time += part.value;
+                    if (part.type === 'minute') time += ':';
+                    if (part.type === 'second') time += ':';
+                }
+                if (part.type === 'literal' && part.value === ':') time = time.slice(0, -1) + ':';
+            }
+            
+            // 移除最后一个冒号
+            time = time.slice(0, -1);
+            
+            // 构建日期字符串
+            const year = parts.find(p => p.type === 'year').value;
+            const month = parts.find(p => p.type === 'month').value;
+            const day = parts.find(p => p.type === 'day').value;
+            const weekday = parts.find(p => p.type === 'weekday').value;
+            
+            dateStr = `${year}年${month}${day}日 ${weekday}`;
+            
+            // 判断白天还是夜晚 (6:00-18:00为白天)
+            const isDaytime = hour >= 6 && hour < 18;
+            
+            return { time, date: dateStr, isDaytime };
+        }
+        
+        // 格式化时区偏移
+        function formatOffset(offset) {
+            if (offset === 0) return '+00:00';
+            const sign = offset > 0 ? '+' : '-';
+            const hours = Math.abs(Math.floor(offset));
+            const minutes = Math.abs((offset % 1) * 60);
+            return `${sign}${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        }
+        
+        // 计算时差
+        function calculateTimeDifference(localOffset, targetOffset) {
+            return targetOffset - localOffset;
+        }
+        
+        // 格式化时差显示
+        function formatTimeDifference(diff) {
+            if (diff === 0) return '与本地时间相同';
+            const sign = diff > 0 ? '+' : '';
+            const hours = Math.abs(diff);
+            const minutes = Math.abs((diff % 1) * 60);
+            
+            if (minutes === 0) {
+                return `${sign}${hours}小时`;
+            } else {
+                return `${sign}${hours}小时${minutes}分钟`;
+            }
+        }
+        
+        // 获取时差样式类
+        function getTimeDiffClass(diff) {
+            if (diff > 0) return 'time-ahead';
+            if (diff < 0) return 'time-behind';
+            return 'time-same';
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

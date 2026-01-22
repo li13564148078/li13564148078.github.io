@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DragonXi Tech | 科技解决方案</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        :root {
+            --primary: #00d4ff;
+            --primary-dark: #0099cc;
+            --secondary: #1a1a2e;
+            --dark: #0f0f1e;
+            --light: #e0f7ff;
+            --gray: #2a2a3e;
+            --card-bg: rgba(26, 26, 46, 0.8);
+        }
+        
+        body {
+            background-color: var(--dark);
+            color: var(--light);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 212, 255, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 99, 255, 0.05) 0%, transparent 20%);
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* 头部样式 */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            position: relative;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            z-index: 100;
+        }
+        
+        .logo-text {
+            background: linear-gradient(90deg, var(--primary), #00a8ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+        }
+        
+        /* 右上角菜单 */
+        .menu-container {
+            position: relative;
+        }
+        
+        .menu-btn {
+            background: transparent;
+            border: 1px solid var(--gray);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--light);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        .menu-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background-color: var(--card-bg);
+            border: 1px solid var(--gray);
+            border-radius: 10px;
+            min-width: 200px;
+            padding: 15px 0;
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .dropdown-menu.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .dropdown-menu a {
+            display: block;
+            padding: 12px 20px;
+            color: var(--light);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .dropdown-menu a:hover {
+            background-color: rgba(0, 212, 255, 0.1);
+            color: var(--primary);
+            padding-left: 25px;
+        }
+        
+        /* 主要内容区域 */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            text-align: center;
+            padding: 40px 0;
+        }
+        
+        .tagline {
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, var(--primary), #ffffff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1.2;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #aaa;
+            max-width: 600px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+        }
+        
+        /* 按钮样式 */
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+        
+        .primary-btn {
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            color: var(--dark);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3);
+        }
+        
+        .primary-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 212, 255, 0.5);
+        }
+        
+        .secondary-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+        
+        .secondary-btn:hover {
+            background: rgba(0, 212, 255, 0.1);
+            transform: translateY(-3px);
+        }
+        
+        /* 页脚 */
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(42, 42, 62, 0.5);
+            margin-top: 40px;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+                padding: 0 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <header>
+            <a href="#" class="logo">
+                <span class="logo-text">DragonXi Tech</span>
+            </a>
+            
+            <!-- 右上角三个点菜单 -->
+            <div class="menu-container">
+                <button class="menu-btn" id="menuBtn">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="about_us.html"><i class="fas fa-info-circle"></i> 关于我</a>
+                    <a href="zangzhu.html"><i class="fas fa-heart"></i> 支持我</a>
+                </div>
+            </div>
+        </header>
+        
+        <!-- 主要内容 -->
+        <main class="main-content">
+            <p class="tagline">前沿科技 · 创新未来</p>
+            <h1>释放技术的<br>无限可能</h1>
+            <p class="subtitle">DragonXi Tech提供简单的工具</p>
+            
+            <!-- 获得免费工具按钮 -->
+            <a href="toolbox.html" class="btn primary-btn">
+                <i class="fas fa-download"></i> 获得免费工具
+            </a>
+            
+            <!-- 打开浏览器按钮 -->
+            <a href="web.html" class="btn secondary-btn">
+                <i class="fas fa-globe"></i> 打开由我们制作的浏览器
+            </a>
+        </main>
+    </div>
+    
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 DragonXi Tech. 保留所有权利。</p>
+        </div>
+    </footer>
+
+    <script>
+        // 菜单功能
+        const menuBtn = document.getElementById('menuBtn');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        
+        // 切换菜单显示/隐藏
+        menuBtn.addEventListener('click', () => {
+            dropdownMenu.classList.toggle('active');
+        });
+        
+        // 点击其他地方关闭菜单
+        document.addEventListener('click', (e) => {
+            if (!menuBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                dropdownMenu.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

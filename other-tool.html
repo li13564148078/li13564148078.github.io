@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实用工具集</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: #000033;
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+            padding: 20px;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 50px;
+        }
+        
+        .tool-card {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .tool-card:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .tool-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        .tool-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .tool-desc {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .tool-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>实用工具集</h1>
+            <p class="subtitle">精选三款实用工具</p>
+        </header>
+        
+        <div class="tool-grid">
+            <div class="tool-card" onclick="window.location.href='color.html'">
+                <div class="tool-icon">
+                    <i class="fas fa-palette"></i>
+                </div>
+                <h3 class="tool-name">颜色选择器</h3>
+                <p class="tool-desc">通过RGB滑块选择颜色</p>
+            </div>
+            
+            <div class="tool-card" onclick="window.location.href='password.html'">
+                <div class="tool-icon">
+                    <i class="fas fa-key"></i>
+                </div>
+                <h3 class="tool-name">密码生成器</h3>
+                <p class="tool-desc">自定义长度和字符集</p>
+            </div>
+            
+            <div class="tool-card" onclick="window.location.href='newyear.html'">
+                <div class="tool-icon">
+                    <i class="fas fa-gift"></i>
+                </div>
+                <h3 class="tool-name">新年祝福</h3>
+                <p class="tool-desc">查看特别的新年祝福</p>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2023 实用工具集</p>
+        </footer>
+    </div>
+</body>
+</html>

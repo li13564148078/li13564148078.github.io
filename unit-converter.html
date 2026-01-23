@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>单位转换器 - DragonXi Tech</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0c0c2e, #1a1a4a, #0c0c2e);
+            color: #e0e0ff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* 科技感背景效果 */
+        .tech-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.7;
+        }
+        
+        .grid-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 200, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 200, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+        }
+        
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+        
+        .pulse-dot {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #00ffff;
+            box-shadow: 0 0 20px #00ffff;
+            animation: pulse 3s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(0.8); opacity: 0.8; }
+            50% { transform: scale(1.5); opacity: 0.3; }
+            100% { transform: scale(0.8); opacity: 0.8; }
+        }
+        
+        /* 头部样式 */
+        header {
+            text-align: center;
+            margin: 30px 0;
+            width: 100%;
+            max-width: 800px;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, #00ffff, #0080ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 10px rgba(0, 200, 255, 0.5);
+            letter-spacing: 2px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #a0a0ff;
+            margin-bottom: 10px;
+        }
+        
+        /* 主容器样式 */
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: rgba(10, 15, 40, 0.7);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 0 30px rgba(0, 100, 255, 0.3);
+            border: 1px solid rgba(0, 200, 255, 0.3);
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+        }
+        
+        /* 转换器样式 */
+        .converter {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .input-field {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #a0c0ff;
+            font-size: 1rem;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(5, 10, 30, 0.8);
+            border: 1px solid rgba(0, 150, 255, 0.5);
+            border-radius: 8px;
+            color: #e0f0ff;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #00aaff;
+            box-shadow: 0 0 10px rgba(0, 170, 255, 0.5);
+        }
+        
+        input {
+            background: rgba(5, 10, 30, 0.9);
+        }
+        
+        button {
+            padding: 14px 25px;
+            background: linear-gradient(90deg, #0080ff, #00a0ff);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        button:hover {
+            background: linear-gradient(90deg, #00a0ff, #00c0ff);
+            box-shadow: 0 0 15px rgba(0, 160, 255, 0.7);
+            transform: translateY(-2px);
+        }
+        
+        /* 结果样式 */
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(5, 10, 30, 0.6);
+            border-radius: 10px;
+            border-left: 4px solid #00aaff;
+            display: none;
+        }
+        
+        .result.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #00ffff;
+            margin: 10px 0;
+        }
+        
+        /* 页脚样式 */
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #8090ff;
+            font-size: 0.9rem;
+            width: 100%;
+            max-width: 800px;
+            border-top: 1px solid rgba(0, 100, 255, 0.3);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .input-group {
+                flex-direction: column;
+            }
+            
+            .input-field {
+                min-width: 100%;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 科技感背景 -->
+    <div class="tech-bg">
+        <div class="grid-lines"></div>
+        <div class="pulse-dot" style="top: 20%; left: 15%;"></div>
+        <div class="pulse-dot" style="top: 70%; left: 80%; animation-delay: 1s;"></div>
+        <div class="pulse-dot" style="top: 40%; left: 60%; animation-delay: 2s;"></div>
+    </div>
+    
+    <header>
+        <h1>单位转换器</h1>
+        <p class="subtitle">快速、精确的多维度单位转换工具</p>
+    </header>
+    
+    <div class="container">
+        <div class="converter">
+            <div class="input-group">
+                <div class="input-field">
+                    <label for="value">输入数值</label>
+                    <input type="number" id="value" placeholder="请输入要转换的数值" step="any">
+                </div>
+                
+                <div class="input-field">
+                    <label for="fromUnit">从单位</label>
+                    <select id="fromUnit">
+                        <option value="meter">米 (m)</option>
+                        <option value="kilometer">千米 (km)</option>
+                        <option value="centimeter">厘米 (cm)</option>
+                        <option value="millimeter">毫米 (mm)</option>
+                        <option value="mile">英里 (mi)</option>
+                        <option value="foot">英尺 (ft)</option>
+                        <option value="inch">英寸 (in)</option>
+                        <option value="celsius">摄氏度 (°C)</option>
+                        <option value="fahrenheit">华氏度 (°F)</option>
+                        <option value="kelvin">开尔文 (K)</option>
+                        <option value="kilogram">千克 (kg)</option>
+                        <option value="gram">克 (g)</option>
+                        <option value="pound">磅 (lb)</option>
+                        <option value="ounce">盎司 (oz)</option>
+                        <option value="second">秒 (s)</option>
+                        <option value="minute">分钟 (min)</option>
+                        <option value="hour">小时 (hr)</option>
+                    </select>
+                </div>
+                
+                <div class="input-field">
+                    <label for="toUnit">到单位</label>
+                    <select id="toUnit">
+                        <option value="meter">米 (m)</option>
+                        <option value="kilometer">千米 (km)</option>
+                        <option value="centimeter">厘米 (cm)</option>
+                        <option value="millimeter">毫米 (mm)</option>
+                        <option value="mile">英里 (mi)</option>
+                        <option value="foot">英尺 (ft)</option>
+                        <option value="inch">英寸 (in)</option>
+                        <option value="celsius">摄氏度 (°C)</option>
+                        <option value="fahrenheit">华氏度 (°F)</option>
+                        <option value="kelvin">开尔文 (K)</option>
+                        <option value="kilogram">千克 (kg)</option>
+                        <option value="gram">克 (g)</option>
+                        <option value="pound">磅 (lb)</option>
+                        <option value="ounce">盎司 (oz)</option>
+                        <option value="second">秒 (s)</option>
+                        <option value="minute">分钟 (min)</option>
+                        <option value="hour">小时 (hr)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button id="convertBtn">转换单位</button>
+            
+            <div class="result" id="result">
+                <h3>转换结果</h3>
+                <div class="result-value" id="resultValue">0</div>
+                <p id="conversionText"></p>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>由 DragonXi Tech 的李宸熙 制作于 2026年</p>
+        <p>© 2026 DragonXi Tech - 创新科技解决方案</p>
+    </footer>
+
+    <script>
+        // 单位转换系数[1,5](@ref)
+        const conversionFactors = {
+            // 长度单位[3,5](@ref)
+            meter: { 
+                meter: 1, 
+                kilometer: 0.001, 
+                centimeter: 100, 
+                millimeter: 1000, 
+                mile: 0.000621371, 
+                foot: 3.28084, 
+                inch: 39.3701 
+            },
+            kilometer: { 
+                meter: 1000, 
+                kilometer: 1, 
+                centimeter: 100000, 
+                millimeter: 1000000, 
+                mile: 0.621371, 
+                foot: 3280.84, 
+                inch: 39370.1 
+            },
+            centimeter: { 
+                meter: 0.01, 
+                kilometer: 0.00001, 
+                centimeter: 1, 
+                millimeter: 10, 
+                mile: 0.00000621371, 
+                foot: 0.0328084, 
+                inch: 0.393701 
+            },
+            millimeter: { 
+                meter: 0.001, 
+                kilometer: 0.000001, 
+                centimeter: 0.1, 
+                millimeter: 1, 
+                mile: 6.21371e-7, 
+                foot: 0.00328084, 
+                inch: 0.0393701 
+            },
+            mile: { 
+                meter: 1609.34, 
+                kilometer: 1.60934, 
+                centimeter: 160934, 
+                millimeter: 1609340, 
+                mile: 1, 
+                foot: 5280, 
+                inch: 63360 
+            },
+            foot: { 
+                meter: 0.3048, 
+                kilometer: 0.0003048, 
+                centimeter: 30.48, 
+                millimeter: 304.8, 
+                mile: 0.000189394, 
+                foot: 1, 
+                inch: 12 
+            },
+            inch: { 
+                meter: 0.0254, 
+                kilometer: 0.0000254, 
+                centimeter: 2.54, 
+                millimeter: 25.4, 
+                mile: 0.000015783, 
+                foot: 0.0833333, 
+                inch: 1 
+            },
+            
+            // 温度单位[3,5](@ref)
+            celsius: {
+                celsius: function(val) { return val; },
+                fahrenheit: function(val) { return (val * 9/5) + 32; },
+                kelvin: function(val) { return val + 273.15; }
+            },
+            fahrenheit: {
+                celsius: function(val) { return (val - 32) * 5/9; },
+                fahrenheit: function(val) { return val; },
+                kelvin: function(val) { return (val - 32) * 5/9 + 273.15; }
+            },
+            kelvin: {
+                celsius: function(val) { return val - 273.15; },
+                fahrenheit: function(val) { return (val - 273.15) * 9/5 + 32; },
+                kelvin: function(val) { return val; }
+            },
+            
+            // 质量单位[5](@ref)
+            kilogram: { 
+                kilogram: 1, 
+                gram: 1000, 
+                pound: 2.20462, 
+                ounce: 35.274 
+            },
+            gram: { 
+                kilogram: 0.001, 
+                gram: 1, 
+                pound: 0.00220462, 
+                ounce: 0.035274 
+            },
+            pound: { 
+                kilogram: 0.453592, 
+                gram: 453.592, 
+                pound: 1, 
+                ounce: 16 
+            },
+            ounce: { 
+                kilogram: 0.0283495, 
+                gram: 28.3495, 
+                pound: 0.0625, 
+                ounce: 1 
+            },
+            
+            // 时间单位[5](@ref)
+            second: { 
+                second: 1, 
+                minute: 1/60, 
+                hour: 1/3600 
+            },
+            minute: { 
+                second: 60, 
+                minute: 1, 
+                hour: 1/60 
+            },
+            hour: { 
+                second: 3600, 
+                minute: 60, 
+                hour: 1 
+            }
+        };
+        
+        // 单位标签[1,5](@ref)
+        const unitLabels = {
+            meter: "米",
+            kilometer: "千米",
+            centimeter: "厘米",
+            millimeter: "毫米",
+            mile: "英里",
+            foot: "英尺",
+            inch: "英寸",
+            celsius: "摄氏度",
+            fahrenheit: "华氏度",
+            kelvin: "开尔文",
+            kilogram: "千克",
+            gram: "克",
+            pound: "磅",
+            ounce: "盎司",
+            second: "秒",
+            minute: "分钟",
+            hour: "小时"
+        };
+        
+        // 单位符号[1,5](@ref)
+        const unitSymbols = {
+            meter: "m",
+            kilometer: "km",
+            centimeter: "cm",
+            millimeter: "mm",
+            mile: "mi",
+            foot: "ft",
+            inch: "in",
+            celsius: "°C",
+            fahrenheit: "°F",
+            kelvin: "K",
+            kilogram: "kg",
+            gram: "g",
+            pound: "lb",
+            ounce: "oz",
+            second: "s",
+            minute: "min",
+            hour: "hr"
+        };
+        
+        // 转换函数[1,5](@ref)
+        function convertUnits() {
+            const value = parseFloat(document.getElementById('value').value);
+            const fromUnit = document.getElementById('fromUnit').value;
+            const toUnit = document.getElementById('toUnit').value;
+            const resultElement = document.getElementById('resultValue');
+            const conversionTextElement = document.getElementById('conversionText');
+            const resultContainer = document.getElementById('result');
+            
+            if (isNaN(value)) {
+                alert('请输入有效的数值');
+                return;
+            }
+            
+            let result;
+            
+            // 检查是否是温度转换（使用函数）[3](@ref)
+            if (typeof conversionFactors[fromUnit][toUnit] === 'function') {
+                result = conversionFactors[fromUnit][toUnit](value);
+            } else {
+                // 其他单位转换（使用系数）[1](@ref)
+                result = value * conversionFactors[fromUnit][toUnit];
+            }
+            
+            // 显示结果
+            resultElement.textContent = `${value.toLocaleString()} ${unitSymbols[fromUnit]} = ${result.toFixed(6)} ${unitSymbols[toUnit]}`;
+            
+            conversionTextElement.textContent = `${value} ${unitLabels[fromUnit]} 等于 ${result.toFixed(6)} ${unitLabels[toUnit]}`;
+            
+            resultContainer.classList.add('active');
+        }
+        
+        // 添加事件监听器
+        document.getElementById('convertBtn').addEventListener('click', convertUnits);
+        
+        // 输入框回车键支持
+        document.getElementById('value').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                convertUnits();
+            }
+        });
+        
+        // 随机生成背景脉冲点
+        function generatePulseDots() {
+            const techBg = document.querySelector('.tech-bg');
+            for (let i = 0; i < 5; i++) {
+                const dot = document.createElement('div');
+                dot.classList.add('pulse-dot');
+                dot.style.top = `${Math.random() * 100}%`;
+                dot.style.left = `${Math.random() * 100}%`;
+                dot.style.animationDelay = `${Math.random() * 3}s`;
+                techBg.appendChild(dot);
+            }
+        }
+        
+        // 初始化
+        window.onload = function() {
+            generatePulseDots();
+        };
+    </script>
+</body>
+</html>

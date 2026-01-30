@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>量子画板 - ©2026 dragon Xi tech团队的李宸熙制作</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: white;
+            color: #40a4df;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+        }
+        
+        .app-title {
+            font-size: 2rem;
+            color: #40a4df;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            color: #40a4df;
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            max-width: 1400px;
+            margin: 0 auto;
+            gap: 15px;
+        }
+        
+        .toolbar {
+            width: 100%;
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .tool-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 10px;
+            border-right: 1px solid rgba(64, 164, 223, 0.2);
+        }
+        
+        .tool-group:last-child {
+            border-right: none;
+        }
+        
+        .tool-group h3 {
+            color: #40a4df;
+            font-size: 0.9rem;
+            margin-right: 5px;
+        }
+        
+        .tool-btn {
+            padding: 8px 12px;
+            background: white;
+            border: 1px solid #40a4df;
+            border-radius: 6px;
+            color: #40a4df;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .tool-btn:hover {
+            background: rgba(64, 164, 223, 0.1);
+        }
+        
+        .tool-btn.active {
+            background: #40a4df;
+            color: white;
+        }
+        
+        .color-picker {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .color-option {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+        
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+        
+        .color-option.active {
+            border-color: #40a4df;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .slider-container label {
+            color: #40a4df;
+            font-size: 0.9rem;
+            min-width: 60px;
+        }
+        
+        input[type="range"] {
+            width: 100px;
+            height: 5px;
+            background: rgba(64, 164, 223, 0.2);
+            border-radius: 5px;
+            outline: none;
+        }
+        
+        .canvas-container {
+            flex: 1;
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .canvas-wrapper {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(64, 164, 223, 0.3);
+        }
+        
+        #drawingCanvas {
+            background: white;
+            cursor: crosshair;
+            display: block;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            color: #40a4df;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        
+        /* 自定义颜色输入 */
+        .custom-color-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        #customColorInput {
+            width: 80px;
+            height: 25px;
+            padding: 0;
+            border: 1px solid #40a4df;
+            border-radius: 4px;
+        }
+        
+        #addCustomColor {
+            padding: 2px 8px;
+            background: white;
+            border: 1px solid #40a4df;
+            border-radius: 4px;
+            color: #40a4df;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="app-title">量子画板</div>
+        <div class="subtitle">©2026 dragon Xi tech团队的李宸熙制作 | 高级绘图工具与几何图形支持</div>
+    </div>
+    
+    <div class="container">
+        <div class="toolbar">
+            <div class="tool-group">
+                <h3>工具</h3>
+                <button class="tool-btn active" data-tool="pen">
+                    画笔
+                </button>
+                <button class="tool-btn" data-tool="line">
+                    直线
+                </button>
+                <button class="tool-btn" data-tool="rectangle">
+                    矩形
+                </button>
+                <button class="tool-btn" data-tool="circle">
+                    圆形
+                </button>
+                <button class="tool-btn" data-tool="triangle">
+                    三角形
+                </button>
+                <button class="tool-btn" data-tool="eraser">
+                    橡皮擦
+                </button>
+            </div>
+            
+            <div class="tool-group">
+                <h3>颜色</h3>
+                <div class="color-picker">
+                    <div class="color-option active" style="background-color: #40a4df;" data-color="#40a4df"></div>
+                    <div class="color-option" style="background-color: #00e5ff;" data-color="#00e5ff"></div>
+                    <div class="color-option" style="background-color: #0077cc;" data-color="#0077cc"></div>
+                    <div class="color-option" style="background-color: #004080;" data-color="#004080"></div>
+                    <div class="color-option" style="background-color: #00cc99;" data-color="#00cc99"></div>
+                </div>
+                <div class="custom-color-container">
+                    <input type="color" id="customColorInput" value="#40a4df">
+                    <button id="addCustomColor">添加</button>
+                </div>
+            </div>
+            
+            <div class="tool-group">
+                <h3>画笔</h3>
+                <div class="slider-container">
+                    <label>粗细:</label>
+                    <input type="range" id="brushSize" min="1" max="50" value="5">
+                </div>
+            </div>
+            
+            <div class="tool-group">
+                <h3>操作</h3>
+                <button class="tool-btn" id="clearCanvas">
+                    清空
+                </button>
+                <button class="tool-btn" id="saveCanvas">
+                    保存
+                </button>
+                <label for="fileInput" class="tool-btn">
+                    打开图片
+                </label>
+                <input type="file" id="fileInput" accept="image/*">
+            </div>
+        </div>
+        
+        <div class="canvas-container">
+            <div class="canvas-wrapper">
+                <canvas id="drawingCanvas" width="1000" height="700"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>©2026 dragon Xi tech团队 - 李宸熙制作 | 高级绘图工具 | 支持直线、矩形、圆形、三角形等几何图形绘制</p>
+    </div>
+
+    <script>
+        // 获取Canvas元素和上下文
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 状态变量
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+        let currentTool = 'pen';
+        let currentColor = '#40a4df';
+        let brushSize = 5;
+        let startX, startY;
+        let snapshot; // 用于保存画布状态的ImageData
+        
+        // 初始化画布
+        function initCanvas() {
+            // 设置画布背景
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 设置默认绘图样式
+            ctx.strokeStyle = currentColor;
+            ctx.lineWidth = brushSize;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+        }
+        
+        // 开始绘图
+        function startDrawing(e) {
+            isDrawing = true;
+            [lastX, lastY] = [e.offsetX, e.offsetY];
+            [startX, startY] = [e.offsetX, e.offsetY];
+            
+            // 保存当前画布状态
+            snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            
+            if (currentTool === 'pen') {
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+            }
+        }
+        
+        // 绘图过程
+        function draw(e) {
+            if (!isDrawing) return;
+            
+            const x = e.offsetX;
+            const y = e.offsetY;
+            
+            ctx.strokeStyle = currentTool === 'eraser' ? 'white' : currentColor;
+            ctx.lineWidth = brushSize;
+            
+            // 恢复画布到开始绘图时的状态
+            ctx.putImageData(snapshot, 0, 0);
+            
+            switch (currentTool) {
+                case 'pen':
+                    ctx.lineTo(x, y);
+                    ctx.stroke();
+                    break;
+                    
+                case 'line':
+                    ctx.beginPath();
+                    ctx.moveTo(startX, startY);
+                    ctx.lineTo(x, y);
+                    ctx.stroke();
+                    break;
+                    
+                case 'rectangle':
+                    ctx.strokeRect(startX, startY, x - startX, y - startY);
+                    break;
+                    
+                case 'circle':
+                    const radius = Math.sqrt(Math.pow(x - startX, 2) + Math.pow(y - startY, 2));
+                    ctx.beginPath();
+                    ctx.arc(startX, startY, radius, 0, Math.PI * 2);
+                    ctx.stroke();
+                    break;
+                    
+                case 'triangle':
+                    ctx.beginPath();
+                    ctx.moveTo(startX, startY);
+                    ctx.lineTo(x, y);
+                    ctx.lineTo(startX * 2 - x, y);
+                    ctx.closePath();
+                    ctx.stroke();
+                    break;
+                    
+                case 'eraser':
+                    ctx.lineTo(x, y);
+                    ctx.stroke();
+                    break;
+            }
+            
+            // 更新最后位置（仅对画笔和橡皮擦有效）
+            if (currentTool === 'pen' || currentTool === 'eraser') {
+                [lastX, lastY] = [x, y];
+            }
+        }
+        
+        // 结束绘图
+        function stopDrawing() {
+            if (!isDrawing) return;
+            
+            isDrawing = false;
+            
+            if (currentTool === 'pen' || currentTool === 'eraser') {
+                ctx.beginPath();
+            }
+        }
+        
+        // 清空画布
+        function clearCanvas() {
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        
+        // 保存画布为图像
+        function saveCanvas() {
+            const link = document.createElement('a');
+            link.download = `quantum-drawing-${new Date().getTime()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        // 打开图片
+        function setupFileInput() {
+            const fileInput = document.getElementById('fileInput');
+            
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        // 清除画布
+                        clearCanvas();
+                        
+                        // 计算图片尺寸以适应画布
+                        let width = img.width;
+                        let height = img.height;
+                        const ratio = Math.min(canvas.width / width, canvas.height / height);
+                        width *= ratio;
+                        height *= ratio;
+                        
+                        // 绘制图片到画布中心
+                        const x = (canvas.width - width) / 2;
+                        const y = (canvas.height - height) / 2;
+                        ctx.drawImage(img, x, y, width, height);
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        // 添加自定义颜色
+        function setupCustomColor() {
+            const customColorInput = document.getElementById('customColorInput');
+            const addCustomColorBtn = document.getElementById('addCustomColor');
+            const colorPicker = document.querySelector('.color-picker');
+            
+            addCustomColorBtn.addEventListener('click', function() {
+                const color = customColorInput.value;
+                
+                // 创建新的颜色选项
+                const colorOption = document.createElement('div');
+                colorOption.className = 'color-option';
+                colorOption.style.backgroundColor = color;
+                colorOption.setAttribute('data-color', color);
+                
+                // 添加点击事件
+                colorOption.addEventListener('click', function() {
+                    document.querySelectorAll('.color-option').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    currentColor = this.getAttribute('data-color');
+                });
+                
+                // 添加到颜色选择器
+                colorPicker.appendChild(colorOption);
+                
+                // 自动选择新添加的颜色
+                document.querySelectorAll('.color-option').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                colorOption.classList.add('active');
+                currentColor = color;
+            });
+        }
+        
+        // 事件监听器设置
+        function setupEventListeners() {
+            // 鼠标事件
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+            
+            // 工具选择
+            document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.tool-btn[data-tool]').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    currentTool = this.getAttribute('data-tool');
+                });
+            });
+            
+            // 颜色选择
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.color-option').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    currentColor = this.getAttribute('data-color');
+                });
+            });
+            
+            // 画笔粗细
+            document.getElementById('brushSize').addEventListener('input', function() {
+                brushSize = this.value;
+            });
+            
+            // 清空画布
+            document.getElementById('clearCanvas').addEventListener('click', clearCanvas);
+            
+            // 保存图像
+            document.getElementById('saveCanvas').addEventListener('click', saveCanvas);
+            
+            // 文件输入
+            setupFileInput();
+            
+            // 自定义颜色
+            setupCustomColor();
+        }
+        
+        // 初始化
+        window.addEventListener('load', function() {
+            initCanvas();
+            setupEventListeners();
+        });
+    </script>
+</body>
+</html>

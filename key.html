@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>四位数密码验证系统</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            transition: all 0.5s ease;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-weight: 600;
+            font-size: 2.2rem;
+        }
+        
+        .description {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+        
+        .input-group {
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .input-label {
+            display: block;
+            text-align: left;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        #password-input {
+            width: 100%;
+            padding: 18px 20px;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            font-size: 1.8rem;
+            letter-spacing: 10px;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+        
+        #password-input:focus {
+            border-color: #4a6cf7;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1);
+        }
+        
+        .input-hint {
+            font-size: 0.9rem;
+            color: #888;
+            margin-top: 8px;
+            text-align: left;
+        }
+        
+        .error-message {
+            color: #ff4757;
+            font-weight: 500;
+            margin-top: 10px;
+            min-height: 24px;
+        }
+        
+        .attempts-counter {
+            color: #666;
+            margin-top: 15px;
+            font-size: 0.95rem;
+        }
+        
+        .success-container {
+            display: none;
+            margin-top: 40px;
+        }
+        
+        .success-check {
+            font-size: 10rem;
+            color: #2ed573;
+            margin: 20px 0;
+            line-height: 1;
+            text-shadow: 0 5px 15px rgba(46, 213, 115, 0.3);
+        }
+        
+        .success-message {
+            color: #333;
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+        
+        .change-password-section {
+            background-color: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 30px;
+        }
+        
+        .change-title {
+            color: #555;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .change-input-group {
+            margin-bottom: 20px;
+        }
+        
+        #new-password-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1.5rem;
+            letter-spacing: 5px;
+            text-align: center;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        #submit-btn {
+            background-color: #4a6cf7;
+            color: white;
+        }
+        
+        #submit-btn:hover {
+            background-color: #3a5ce5;
+            transform: translateY(-2px);
+        }
+        
+        #change-btn {
+            background-color: #2ed573;
+            color: white;
+            display: none;
+        }
+        
+        #change-btn:hover {
+            background-color: #25c464;
+            transform: translateY(-2px);
+        }
+        
+        #reset-btn {
+            background-color: #ffa502;
+            color: white;
+        }
+        
+        #reset-btn:hover {
+            background-color: #e59400;
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            #password-input {
+                font-size: 1.5rem;
+                padding: 15px;
+                letter-spacing: 8px;
+            }
+            
+            .success-check {
+                font-size: 8rem;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>四位数密码验证系统</h1>
+        
+        <div class="description">
+            请输入4位数字密码，按回车键确认。您可以无限次尝试，直到输入正确密码。
+        </div>
+        
+        <div id="input-section">
+            <div class="input-group">
+                <label class="input-label" for="password-input">请输入4位数字密码：</label>
+                <input 
+                    type="password" 
+                    id="password-input" 
+                    maxlength="4" 
+                    placeholder="····"
+                    autofocus
+                >
+                <div class="input-hint">仅接受数字0-9，输入完成后按回车键确认</div>
+                <div class="error-message" id="error-msg"></div>
+                <div class="attempts-counter">
+                    尝试次数: <span id="attempts-count">0</span>
+                </div>
+            </div>
+            
+            <div class="buttons">
+                <button id="submit-btn">验证密码</button>
+                <button id="change-btn" style="display: none;">更改密码</button>
+            </div>
+        </div>
+        
+        <div id="success-section" class="success-container">
+            <div class="success-check">✓</div>
+            <div class="success-message">密码验证成功！</div>
+            
+            <div class="change-password-section">
+                <div class="change-title">设置新密码</div>
+                <div class="change-input-group">
+                    <input 
+                        type="password" 
+                        id="new-password-input" 
+                        maxlength="4" 
+                        placeholder="输入新密码"
+                    >
+                </div>
+                <button id="reset-btn">重置为新密码</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始密码设置为1234
+        let currentPassword = "1234";
+        let attempts = 0;
+        
+        // 获取DOM元素
+        const passwordInput = document.getElementById('password-input');
+        const errorMsg = document.getElementById('error-msg');
+        const attemptsCount = document.getElementById('attempts-count');
+        const submitBtn = document.getElementById('submit-btn');
+        const changeBtn = document.getElementById('change-btn');
+        const inputSection = document.getElementById('input-section');
+        const successSection = document.getElementById('success-section');
+        const newPasswordInput = document.getElementById('new-password-input');
+        const resetBtn = document.getElementById('reset-btn');
+        
+        // 限制输入只能为数字
+        passwordInput.addEventListener('input', function() {
+            // 移除非数字字符
+            this.value = this.value.replace(/\D/g, '');
+            
+            // 如果输入达到4位，自动聚焦到提交按钮
+            if (this.value.length === 4) {
+                submitBtn.focus();
+            }
+        });
+        
+        // 新密码输入限制为数字
+        newPasswordInput.addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '');
+        });
+        
+        // 验证密码函数
+        function validatePassword() {
+            const enteredPassword = passwordInput.value;
+            
+            // 验证输入是否为4位数字
+            if (enteredPassword.length !== 4) {
+                errorMsg.textContent = "密码必须是4位数字";
+                passwordInput.focus();
+                return;
+            }
+            
+            // 增加尝试次数
+            attempts++;
+            attemptsCount.textContent = attempts;
+            
+            // 验证密码是否正确
+            if (enteredPassword === currentPassword) {
+                // 密码正确，显示成功界面
+                inputSection.style.display = "none";
+                successSection.style.display = "block";
+                changeBtn.style.display = "block";
+                errorMsg.textContent = "";
+            } else {
+                // 密码错误，显示错误信息
+                errorMsg.textContent = "密码错误，请重新尝试";
+                passwordInput.value = "";
+                passwordInput.focus();
+            }
+        }
+        
+        // 提交按钮点击事件
+        submitBtn.addEventListener('click', validatePassword);
+        
+        // 输入框回车键事件
+        passwordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                validatePassword();
+            }
+        });
+        
+        // 更改密码按钮点击事件
+        changeBtn.addEventListener('click', function() {
+            // 切换显示输入部分和成功部分
+            if (inputSection.style.display === "none") {
+                inputSection.style.display = "block";
+                successSection.style.display = "none";
+                passwordInput.value = "";
+                passwordInput.focus();
+            } else {
+                inputSection.style.display = "none";
+                successSection.style.display = "block";
+            }
+        });
+        
+        // 重置为新密码按钮点击事件
+        resetBtn.addEventListener('click', function() {
+            const newPassword = newPasswordInput.value;
+            
+            // 验证新密码
+            if (newPassword.length !== 4) {
+                alert("新密码必须是4位数字");
+                newPasswordInput.focus();
+                return;
+            }
+            
+            // 更新密码
+            currentPassword = newPassword;
+            
+            // 清空输入框
+            newPasswordInput.value = "";
+            passwordInput.value = "";
+            
+            // 显示成功消息
+            errorMsg.textContent = "";
+            alert("密码已成功更改！");
+            
+            // 返回输入界面
+            inputSection.style.display = "block";
+            successSection.style.display = "none";
+            passwordInput.focus();
+        });
+        
+        // 初始聚焦到密码输入框
+        passwordInput.focus();
+    </script>
+</body>
+</html>

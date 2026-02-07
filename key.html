@@ -189,6 +189,17 @@
             transform: translateY(-2px);
         }
         
+        #jump-btn {
+            background-color: #3498db;
+            color: white;
+            margin-top: 10px;
+        }
+        
+        #jump-btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        
         @media (max-width: 600px) {
             .container {
                 padding: 30px 20px;
@@ -216,15 +227,15 @@
 </head>
 <body>
     <div class="container">
-        <h1>四位数密码验证系统</h1>
+        <h1>DragonXi tech团队后台密码验证界面</h1>
         
         <div class="description">
-            请输入4位数字密码，按回车键确认。您可以无限次尝试，直到输入正确密码。
+            请输入密码
         </div>
         
         <div id="input-section">
             <div class="input-group">
-                <label class="input-label" for="password-input">请输入4位数字密码：</label>
+                <label class="input-label" for="password-input">请输入密码：</label>
                 <input 
                     type="password" 
                     id="password-input" 
@@ -232,7 +243,7 @@
                     placeholder="····"
                     autofocus
                 >
-                <div class="input-hint">仅接受数字0-9，输入完成后按回车键确认</div>
+                <div class="input-hint">输入完成后按回车键确认</div>
                 <div class="error-message" id="error-msg"></div>
                 <div class="attempts-counter">
                     尝试次数: <span id="attempts-count">0</span>
@@ -248,6 +259,11 @@
         <div id="success-section" class="success-container">
             <div class="success-check">✓</div>
             <div class="success-message">密码验证成功！</div>
+            
+            <!-- 添加跳转按钮 -->
+            <div style="margin: 20px 0;">
+                <button id="jump-btn">跳转到后台</button>
+            </div>
             
             <div class="change-password-section">
                 <div class="change-title">设置新密码</div>
@@ -266,7 +282,7 @@
 
     <script>
         // 初始密码设置为1234
-        let currentPassword = "1234";
+        let currentPassword = "0123";
         let attempts = 0;
         
         // 获取DOM元素
@@ -279,6 +295,7 @@
         const successSection = document.getElementById('success-section');
         const newPasswordInput = document.getElementById('new-password-input');
         const resetBtn = document.getElementById('reset-btn');
+        const jumpBtn = document.getElementById('jump-btn');
         
         // 限制输入只能为数字
         passwordInput.addEventListener('input', function() {
@@ -334,6 +351,12 @@
             if (e.key === 'Enter') {
                 validatePassword();
             }
+        });
+        
+        // 跳转按钮点击事件 - 跳转到百度
+        jumpBtn.addEventListener('click', function() {
+            // 在新标签页打开百度
+            window.open('https://github.com/li13564148078/li13564148078.github.io');
         });
         
         // 更改密码按钮点击事件
